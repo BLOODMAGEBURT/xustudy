@@ -221,4 +221,30 @@ Auto-merging index.html
   
     - #### **添加远程地址**
   
-    
+      ```shell
+      git remote add origin git@github.com:BLOODMAGEBURT/xustudy.git
+      
+      
+      #注意：
+      
+      如果出现错误：fatal: remote origin already exists，则执行以下语句：
+      
+          $ git remote rm origin
+      再重新执行：
+      
+         $ git remote add origin git@github.com:BLOODMAGEBURT/xustudy.git
+      --------------------- 
+      ```
+  
+    - 将缓存区推送到远程仓库
+  
+      ```shell
+      git push origin master
+      
+      
+      # 如果出现错误failed to push som refs to…….，则执行以下语句，先把远程服务器 
+      # github上面的文件拉先来，再push 上去。
+         $ git pull origin master
+      ```
+  
+    - 刷新`github`，即可看到上传的文件夹。
