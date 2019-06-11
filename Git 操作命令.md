@@ -208,5 +208,17 @@ Auto-merging index.html
     git init
     ```
   
-  - 
-
+  - 提交文件，文件夹
+  
+    ```shell
+    git add.
+    git commit -m 'first blood'
+    ```
+  
+  - 关联`github`仓库
+  
+    - 在github中新建一个repository，复制仓库地址
+  
+    - #### **添加远程地址**
+  
+    
