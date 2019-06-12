@@ -1,41 +1,48 @@
 ### Git 操作命令
 
-- 查看分支
+- #### 查看分支
 
-  - 查看本地分支
+  1. 查看本地分支
 
-    `git branch`
+     `git branch`
 
-  - 查看所有分支
+  2. 查看所有分支
 
-    `git branch -a`
+     `git branch -a`
 
-- 全局配置
+------
 
-  - 查看用户名、邮箱
 
-    `git config user.name`
 
-    `git config user.email`
+- #### 全局配置
 
-  - 修改用户名、邮箱
+  1. 查看用户名、邮箱
 
-    `git config user.name "your name"`
+     `git config user.name`
 
-    `git config user.email "your email"`
+     `git config user.email`
 
-- 合并分支流程
+  2. 修改用户名、邮箱
+
+     `git config user.name "your name"`
+
+     `git config user.email "your email"`
+
+------
+
+
+
+- #### 合并分支流程
 
   > 1. 开发某个网站。
   > 2. 为实现某个新的需求，创建一个分支。
   > 3. 在这个分支上开展工作。
->
-  > **分支相关的操作，要确保分支是干净的：**
->
+  
+  > ###### 分支相关的操作，要确保分支是干净的：
+  >
   > a. 切换分支之前先提交本分支(commit)
   >
   > b. 主分支合并功能分支前，先提交主分支
-
   1. 分支的新建与切换
 
      ```shell
@@ -47,12 +54,9 @@
      ```shell
       git commit -am 'added a new footer [issue 53]'
         
-      此命令相当于以下两步
-     ```
-
-    git add .
+      # 此命令相当于以下两步
+      git add .
       git commit -m 'added a new footer [issue 53]'
-      
      ```
 
   3. 切换到主分支
@@ -73,18 +77,18 @@
       git branch -d newFunction
      ```
 
+  > 注意：如果出现冲突
+  >
   > 有时候合并操作并不会如此顺利。如果在不同的分支中都修改了同一个文件的同一部分，Git 就无法干净地把两者合到一起（译注：逻辑上说，这种问题只能由人来裁决。）。如果你在解决问题 #53 的过程中修改了 `hotfix` 中修改的部分，将得到类似下面的结果：
-
-  ​		
-
-  ​		
-
-```shell
-  $ git merge iss53
-Auto-merging index.html
-  CONFLICT (content): Merge conflict in index.html
-  Automatic merge failed; fix conflicts and then commit the result.
-```
+  >
+  > ```shell
+  >  $ git merge iss53
+  >   Auto-merging index.html
+  >   CONFLICT (content): Merge conflict in index.html
+  >   Automatic merge failed; fix conflicts and then commit the result.
+  > ```
+  >
+  > 
 
   1. Git 作了合并，但没有提交，它会停下来等你解决冲突。要看看哪些文件在合并时发生冲突，可以用 `git status` 查阅：
   
@@ -102,7 +106,7 @@ Auto-merging index.html
      no changes added to commit (use "git add" and/or "git commit -a")
      ```
   
-  2. 任何包含未解决冲突的文件都会以未合并（unmerged）的状态列出。Git 会在有冲突的文件里加入标准的冲突解决标记，可以通过它们来手工定位并解决这些冲突。可以看到此文件包含类似下面这样的部分：
+  2. 任何包含未解决冲突的文件都会以未合并（`unmerged`）的状态列出。Git 会在有冲突的文件里加入标准的冲突解决标记，可以通过它们来手工定位并解决这些冲突。可以看到此文件包含类似下面这样的部分：
   
      ```html
      <<<<<<< HEAD
@@ -124,11 +128,10 @@ Auto-merging index.html
      please contact us at email.support@github.com
       </div>
      
-     ```
-
-   这个解决方案各采纳了两个分支中的一部分内容，
-     而且我还删除了
-     <<<<<<<，======= 和 >>>>>>> 这些行。
+      这个解决方案各采纳了两个分支中的一部分内容，
+          而且我还删除了
+          <<<<<<<，======= 和 >>>>>>> 这些行。
+          ```
      ```
 
   4. 在解决了所有文件里的所有冲突后，运行 `git add` 将把它们标记为已解决状态（译注：实际上就是来一次快照保存到暂存区域。）。因为一旦暂存，就表示冲突已经解决。
@@ -166,15 +169,17 @@ Auto-merging index.html
      
      ```
 
-
-
   7. 提交到远程仓库，供同伴使用
   
      ```shell
      git push
      ```
 
-- 重命名文件/文件夹
+------
+
+
+
+- #### 重命名文件/文件夹
 
   ​	
 
@@ -184,23 +189,27 @@ Auto-merging index.html
   git push
   ```
 
-- 远程分支
+------
 
-  - 新建远程分支
 
-    ```shell
-    git push origin <branchName>
-    ```
 
-  - 删除远程分支
+- #### 远程分支
 
-    ```shell
-    git push origin -d <branchName>
-    ```
+  ```shell
+# 新建远程分支
+  git push origin <branchName>
+  
+  # 删除远程分支
+git push origin -d <branchName>
+  ```
 
-    
+  ------
+  
+  #### 本地文件夹上传到`github`
 
-  > 将本地的文件，文件夹上传到`github`
+  > 将本地的文件，文件夹上传到`github`的操作
+>
+  > 
   
   - 初始化本地仓库
   
