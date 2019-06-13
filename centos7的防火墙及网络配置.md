@@ -32,6 +32,9 @@ sudo firewall-cmd --reload
 
 # 去掉端口
 sudo firewall-cmd --zone=public --remove-port=3000/tcp --permanent
+
+# 添加服务名称 ftp
+sudo firewall-cmd --permanent --zone=public --add-service=ftp
 ```
 
 ------
