@@ -2,14 +2,14 @@
 
 ```shell
 # Enable firewall
-systemctl enable firewalld
+systemctl enable firewalld #开机自启动
 systemctl start firewalld
 systemctl status firewalld
 
 
 //Disable firewall
-systemctl disable firewalld
-systemctl stop firewalld
+systemctl disable firewalld #开机不启动
+systemctl stop firewalld # 关闭防火墙
 systemctl status firewalld
 ```
 
