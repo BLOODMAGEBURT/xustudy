@@ -24,7 +24,7 @@ firewall-cmd --list-all
 
 ```shell
 # 永久的开放需要的端口 3000
-sudo firewall-cmd --zone=public --add-port=6379/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=139/tcp --permanent
 sudo firewall-cmd --reload
 # 永久的开放需要的端口 批量
 firewall-cmd --permanent --zone=public --add-port=100-500/tcp
