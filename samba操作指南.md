@@ -4,7 +4,7 @@
 
 1. 部署安装 ，启动时开启两个服务 nmb smb
 
-   ![1561087884459](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1561087884459.png)
+   ![1561109576918](F:\xujianbo\xuStudy\img\1561109576918.png)
 
    ```shell
    # samba服务依赖rpc服务，所以需要先安装rpc服务
@@ -14,19 +14,19 @@
 
 2. 修改配置文件，启用网络发现   /etc/samba/smb.conf
 
-   ![1561089239881](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1561089239881.png)
+   ![1561109606357](F:\xujianbo\xuStudy\img\1561109606357.png)
 
    
 
-   ![1561101560958](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1561101560958.png)
+   ![1561109624712](F:\xujianbo\xuStudy\img\1561109624712.png)
 
 3. 创建samba用户
 
-   ![1561102263871](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1561102263871.png)
+   ![1561109646006](F:\xujianbo\xuStudy\img\1561109646006.png)
 
 4. 创建共享文件夹，修改权限
 
-   ![1561102438094](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1561102438094.png)
+   ![1561109658263](F:\xujianbo\xuStudy\img\1561109658263.png)
    
 5. 如果无法连接，请记得开启防火墙的端口139和445
 
@@ -38,5 +38,5 @@
 
    
 
-> ![1561103183845](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1561103183845.png)
+> ![1561109674085](F:\xujianbo\xuStudy\img\1561109674085.png)
 
