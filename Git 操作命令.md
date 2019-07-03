@@ -131,11 +131,13 @@
       这个解决方案各采纳了两个分支中的一部分内容，
           而且我还删除了
           <<<<<<<，======= 和 >>>>>>> 这些行。
-          ```
+     ```
+     ```
+   
      ```
 
   4. 在解决了所有文件里的所有冲突后，运行 `git add` 将把它们标记为已解决状态（译注：实际上就是来一次快照保存到暂存区域。）。因为一旦暂存，就表示冲突已经解决。
-
+  
      ```shell
      git add .
      ```
@@ -166,9 +168,9 @@
       #       .git/MERGE_HEAD
       # and try again.
       #  如果想给将来看这次合并的人一些方便，可以修改该信息，提供更多合并细节。比如你都作了哪些改动，以及这么做的原因。有时候裁决冲突的理由并不直接或明显，有必要略加注解。
-     
+   
      ```
-
+  
   7. 提交到远程仓库，供同伴使用
   
      ```shell
@@ -196,27 +198,31 @@
 - #### 远程分支
 
   ```shell
-# 新建远程分支
+  # 新建远程分支
   git push origin <branchName>
-  
   # 删除远程分支
-git push origin -d <branchName>
+  git push origin -d <branchName>
+  ```
+  
+  > 
+  >
+  > 
+  >
+  > 
+  >
+  > 本地文件夹上传到`github`
+  >
+  > 将本地的文件，文件夹上传到`github`的操作
+  
+- 初始化本地仓库
+
+  ```shell
+  
+      git init
   ```
 
-  ------
   
-  #### 本地文件夹上传到`github`
 
-  > 将本地的文件，文件夹上传到`github`的操作
->
-  > 
-  
-  - 初始化本地仓库
-  
-    ```shell
-    git init
-    ```
-  
   - 提交文件，文件夹
   
     ```shell
@@ -226,34 +232,30 @@ git push origin -d <branchName>
   
   - 关联`github`仓库
   
-    - 在github中新建一个repository，复制仓库地址
-  
+    - 在`github`中新建一个repository，复制仓库地址
+    
     - #### **添加远程地址**
-  
+    
       ```shell
       git remote add origin git@github.com:BLOODMAGEBURT/xustudy.git
       
-      
-      #注意：
-      
-      如果出现错误：fatal: remote origin already exists，则执行以下语句：
+      # 如果出现错误：fatal: remote origin already exists，则执行以下语句：
       
           $ git remote rm origin
-      再重新执行：
+      # 再重新执行：
       
          $ git remote add origin git@github.com:BLOODMAGEBURT/xustudy.git
       --------------------- 
       ```
-  
+      
     - 将缓存区推送到远程仓库
-  
-      ```shell
+      
+    ```shell
       git push origin master
-      
-      
+    
       # 如果出现错误failed to push som refs to…….，则执行以下语句，先把远程服务器 
       # github上面的文件拉先来，再push 上去。
          $ git pull origin master
       ```
-  
+      
     - 刷新`github`，即可看到上传的文件夹。
