@@ -58,3 +58,16 @@ sudo firewall-cmd --permanent --zone=public --add-service=ftp
 
   systemctl restart network
 
+##### SELINUX配置
+
+```shell
+# 配置文件
+vim /etc/selinux/config
+ 
+# 修改配置为 disabled
+SELINUX=disabled
+
+# 重启系统
+reboot
+```
+
