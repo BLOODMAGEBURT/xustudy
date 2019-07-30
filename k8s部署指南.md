@@ -10,7 +10,7 @@
 >
 > 关闭防火墙，关闭`selinux`
 >
-> 在hosts中配置解析
+> 在三台机器的hosts中配置解析
 >
 > `192.168.1.145 k8s-master`
 > `192.168.1.146 k8s-node1`
@@ -75,5 +75,193 @@
   controller-manager   Healthy   ok 
   ```
 
+
+------
+
+
+
+#### 配置node节点
+
+- ​	配置`kubernetes-node.x86_64`，在`192.168.1.145`
+
+  ```shell
+  # 安装
+  yum install kubernetes-node.x86_64 -y
+  
+  # 修改
+  vim /etc/kubernetes/kubelet
+  KUBELET_ADDRESS="--address=192.168.1.145"
+  	# 与上一个配置相同的port
+  KUBELET_PORT="--PORT=10250" 
+  	# 可以用ip,也可以用hosts解析过的主机名
+  KUBELET_HOSTNAME="--hostname-override=k8s-master" 
+  KUBELET_API_SERVER="--api-server=http://192.168.1.145:8080"
+  
+  # 启动服务
+  systemctl start kubelet.service  # 启动时会自动启动docker服务
+  systemclt start kube-proxy.service
+  # 设置服务开机自启
+  systemctl enable kubelet.service
+  systemctl enable kube-proxy.service
+  
+  # 验证, 在master节点
+  kubectl get nodes
+      # 结果
+      NAME         STATUS    AGE
+      k8s-master   Ready     1m
+  		
+  ```
+
+- 配置`kubernetes-node.x86_64`，在`192.168.1.146`
+
+  ```shell
+  # 安装
+  yum install kubernetes-node.x86_64 -y
+  
+  # 修改
+  vim /etc/kubernetes/config
+  KUBE_MASTER="--master=http://192.168.1.145:8080"
+  
+  
+  # 修改
+  vim /etc/kubernetes/kubelet
+  KUBELET_ADDRESS="--address=192.168.1.146"
+  	# 与上一个配置相同的port
+  KUBELET_PORT="--PORT=10250" 
+  	# 可以用ip,也可以用hosts解析过的主机名
+  KUBELET_HOSTNAME="--hostname-override=k8s-node1" 
+  KUBELET_API_SERVER="--api-server=http://192.168.1.145:8080"
+  
+  # 启动服务
+  systemctl start kubelet.service  # 启动时会自动启动docker服务
+  systemclt start kube-proxy.service
+  # 设置服务开机自启
+  systemctl enable kubelet.service
+  systemctl enable kube-proxy.service
+  
+  # 验证， 在maser节点
+  kubectl get nodes
+      # 结果
+      NAME         STATUS     AGE
+  	k8s-master   Ready      32m
+  	k8s-node1    Ready     6m
+  ```
+
+- 配置flannel网络插件，所有node节点
+
+  ```shell
+  # 安装
+  yum install flannel -y
+  
+  # 修改
+  vim /etc/sysconfig/flanneld
+  FLANNEL_ETCD_ENDPOINTS="http://192.168.1.145:2379"
+   # key prefix 可不修改，在下面配置网段需要使用
+   FLANNEL_ETCD_PREFIX="/atomic.io/network"
+   
+  # 配置网段,master节点
+  etcdctl set /atomic.io/network/config '{"Network":"172.16.0.0/16"}'
+  
+  # 启动服务
+  systemctl start flanneld.service
+  # 设置开机自启
+  systemctl enable flanneld.service
+  
+  # 重启docker服务，目的是使dokcer的网段与flannel保持一致
+  systemctl restart docker
+  
+  # 验证
+  ifconfig
+  # 结果会多出来一个flannel网卡，ip地址在172.16.xxx.xxx
+  # docker的网段也会变为 172.16.xxx.xxx
+  
+  
+  # 所有node节点安装启动之后， 测试跨主机容器之间的通信，使用busybox
+  docker pull busybox
+  # 查看系统中的镜像，找到busybox的Image ID
+  docker images
+  # 运行busybox容器, 根据上一步查找的Image Id,替换成自己的
+  docker run -it image-id
+  # 此时已经进入镜像， 运行ifconfig,可以看到此镜像的ip
+  ifconfig
+  
+  # 在镜像中ping 另外的两个ip，发现不通，这是因为docker的iptables规则drop不通
+  ############
+  # 解决方式就是在docker的启动文件中，配置iptables规则
+  
+  # 退出容器，查看docker的启动文件， systemctl status docker
+  
+  vim /usr/lib/systemd/system/docker.service
+  # 在ExecStart之上加入下面一行，容器启动后，执行命令
+  ExecStartPost=/usr/sbin/iptables -P FORWARD ACCEPT
+  # 修改配置文件之后，重新加载生效
+  systemctl daemon-reload
+  ############
+  ```
+
+  ------
+
   
 
+#### 常见资源使用
+
+- pod资源
+
+  ```shell
+  # yaml文件, nginx_pod.yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: nginx
+    labels:
+      app: web
+  spec:
+    containers:
+      - name: nginx
+  	  image: nginx:1.17.2
+  	  ports:
+  	    - containerPort: 80
+  
+  # 创建资源
+  kubectl create -f nginx_pod.yaml
+  # 此时会报错，No API token found for service account "default"
+  # 修改 api server的配置来修复此错误, 去掉 ServiceAccount
+  vim /etc/kubernetes/apiserver
+  KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota"
+  # 重启apiserver
+  systemctl restart kube-apiserver.service
+  # 重新创建资源
+  kubectl create -f nginx_pod.yaml
+  
+  # 验证
+  kubectl get pods
+  # 结果
+  NAME      READY     STATUS              RESTARTS   AGE
+  nginx     0/1       ContainerCreating   0          2m
+  
+  # 但是状态一直是ContainerCreating，所以排错命令如下
+  kubectl describe pod nginx
+  # 镜像拉取错误
+  ```
+
+  ![1564479747980](img/1564479747980.png)
+
+  ```shell
+  # 修改kubelet镜像下载地址,改为docker官方镜像
+  # 先查看是nginx被调度到哪个节点了
+  kubectl get pod nginx -o wide 
+  # 修改 此node下的 kubelet
+  vim /etc/kubernetes/kubelet
+  KUBELET_POD_INFRA_CONTAINER="--pod-infra-container-image=docker.io/tianyebj/pod-infrastructure:latest"
+  # 重启 kubelet服务
+  systemctl restart kubelet.service
+  
+  # 然后等一会就可以重新获取pods
+  kubectl get pods
+  # 结果 就是 running 状态了
+  NAME      READY     STATUS    RESTARTS   AGE
+  nginx     1/1       Running   0          28m
+  
+  ```
+
+  
