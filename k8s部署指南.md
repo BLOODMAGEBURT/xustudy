@@ -299,3 +299,75 @@ docker run -d -p 5000:5000 --restart=always --name registry -v ~/k8s/myregistry:
 
 ```
 
+- RC资源
+
+  > 应用托管在`K8s`之后，`k8s`要保证应用能够持续运行，而这就是RC的工作内容
+  >
+  > 他会确保任何时间`k8s`中都有指定数量的pod在运行
+  >
+  > 在此基础上，RC还提供了一些更高级的特性
+  >
+  > 比如滚动升级，升级回滚等
+
+  ```shell
+  # nginx_rc.yaml
+  apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    name: myweb
+  spec:
+    replicas: 2 # pod的启动数量
+    selector:
+      app: myweb
+    template: # pod的启动模板
+      metadata:
+        labels:
+          app: myweb
+      spec:
+        containers:
+          - name: myweb
+            image: 192.168.1.145:5000/nginx:1.17.2
+            ports:
+              - containerPort: 80
+     
+     
+   # 创建rc
+   kubectl create -f nginx_rc.yaml
+   # 验证
+   kubectl get rc
+   kubectl get pods 
+   
+   # rc 与 pod 的关联是通过label 也即是 标签
+   # selector lablels
+   
+   
+   -------------------------------------------------------------------
+   
+   # rc的滚动升级 nginx_rc2.yaml
+  apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    name: myweb2
+  spec:
+    replicas: 2 # pod的启动数量
+    selector:
+      app: myweb2
+    template: # pod的启动模板
+      metadata:
+        labels:
+          app: myweb2
+      spec:
+        containers:
+          - name: myweb2
+            image: 192.168.1.145:5000/nginx:1.17.3
+            ports:
+              - containerPort: 80
+              
+    # 升级命令-回滚命令也是这个
+    kubectl rolling-update myweb -f nginx-rc2.yaml --update-period=30s
+    
+    # 升级过程中出现问题的回滚命令
+    kubectl rolling-update myweb myweb2 --rollback
+  ```
+
+  
