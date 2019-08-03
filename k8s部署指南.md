@@ -75,7 +75,6 @@
   controller-manager   Healthy   ok 
   ```
 
-
 ------
 
 
@@ -262,6 +261,43 @@
   NAME      READY     STATUS    RESTARTS   AGE
   nginx     1/1       Running   0          28m
   
+  # 总结
+  # k8s中创建一个pod资源，k8s会控制docker至少启动两个容器，一个业务容器nginx,一个pod容器
+  # 业务容器的网络类型是container，与pod容器共用一个ip
+  
   ```
 
-  
+
+
+------
+
+#### 私有仓库HARBOR
+
+
+
+------
+
+私有仓库registry
+
+```shell
+# 下载安装,在master节点
+docker pull registry
+# 启动容器, 会自动创建挂载目录 myregistry
+docker run -d -p 5000:5000 --restart=always --name registry -v ~/k8s/myregistry:/var/lib/registry registry
+# 上传镜像到私有仓库
+    # 先打tag
+    docker tag docker.io/tianyebj/pod-infrastructure:latest 192.168.1.145:5000/pod-infrastructure:latest
+    # push到私有仓库
+    docker push 192.168.1.145:5000/pod-infrastructure:latest
+	# 上传有可能会报错 server gave HTTP response to HTTPS client
+	vim /etc/docker/daemon.json
+	{
+	"debug":true,
+	"insecure-registries":["192.168.1.145:5000"],
+	"experimental":true
+	}
+	# 重启docker
+	systemctl restart docker
+
+```
+
