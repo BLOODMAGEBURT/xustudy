@@ -292,9 +292,7 @@ docker run -d -p 5000:5000 --restart=always --name registry -v ~/k8s/myregistry:
 	# 上传有可能会报错 server gave HTTP response to HTTPS client
 	vim /etc/docker/daemon.json
 	{
-	"debug":true,
 	"insecure-registries":["192.168.1.145:5000"],
-	"experimental":true
 	}
 	# 重启docker
 	systemctl restart docker
