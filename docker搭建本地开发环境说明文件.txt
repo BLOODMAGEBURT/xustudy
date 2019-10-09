@@ -1,0 +1,52 @@
+安装docker和docker-compose
+https://www.runoob.com/docker/windows-docker-install.html
+https://www.cnblogs.com/kevinlia0/articles/10391220.html
+
+新建文件夹->进入执行
+git clone https://github.com/yeszao/dnmp.git
+把.env文件和docker-compose.yml拷贝进dnmp的根目录
+执行docker-compose up -d命令
+在dnmp/conf/conf.d目录下建立一个例如saaspro.conf的文件,并添加内容
+
+server {
+    listen       80;
+    server_name  ss0618.com;
+    root   "/var/www/html/saaspro";
+    index  index.php index.html index.htm;
+    access_log /dev/null;
+    error_log  /var/log/nginx/nginx.localhost.error.log  warn;
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    location / {
+        index index.php index.html index.htm ;
+        if (!-e $request_filename){
+                rewrite ^/(.*)$ /index.php/$1 last;
+        }
+        #autoindex  on;
+    }
+    if (!-e $request_filename){
+         rewrite ^(.*)jicai/([A-Za-z]+)/([A-Za-z0-9]+)\.html$ $1/index.php/privates/index/$2.html?uid=$3 last;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass   php72:9000;
+        fastcgi_index  index.php;
+        include        fastcgi_params;
+        fastcgi_param  PATH_INFO $fastcgi_path_info;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+    }    
+}
+
+修改本地host
+127.0.0.1  		ss0618.com
+
+查看镜像命令
+docker-compose ps
+
+本地www地址是在dnmp\www目录下,可以对应nginx的conf文件,修改/var/www之后的地址
+
+使用docker-compose restart nginx php72命令重启

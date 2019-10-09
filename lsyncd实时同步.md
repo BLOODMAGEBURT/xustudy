@@ -24,11 +24,11 @@
        stausFile 定义状态文件
        nodaemon=true 表示不启用守护模式，默认
        statusInterval 将lsyncd的状态写入上面的statusFile的间隔，默认10秒
-       inotifyMode 指定inotify监控的事件，默认是CloseWrite，还可以是Modify或CloseWrite       or Modify
-       maxProcesses 同步进程的最大个数。假如同时有20个文件需要同步，而maxProcesses = 8，       则最大能看到有8个rysnc进程
+       inotifyMode 指定inotify监控的事件，默认是CloseWrite，还可以是Modify或CloseWrite or Modify
+       maxProcesses 同步进程的最大个数。假如同时有20个文件需要同步，而maxProcesses = 8，则最大能看到有8个rysnc进程
        maxDelays 累计到多少所监控的事件激活一次同步，即使后面的delay延迟时间还未到
    # sync是局域设置
-       default.rsync ：本地目录间同步，使用rsync，也可以达到使用ssh形式的远程rsync效果，       或daemon方式连接远程rsyncd进程；
+       default.rsync ：本地目录间同步，使用rsync，也可以达到使用ssh形式的远程rsync效果，或daemon方式连接远程rsyncd进程；
        default.direct ：本地目录间同步，使用cp、rm等命令完成差异文件备份；
        default.rsyncssh ：同步到远程主机目录，rsync的ssh模式，需要使用key来认证
    `````````````````````````````````````
