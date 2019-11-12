@@ -42,7 +42,7 @@ Canvas我们可以称之为画布，能够在上面绘制各种东西，是安�
 canvas.drawColor(Color.BLUE)
 ```
 
-<img src="/Users/burt/Downloads/xustudy/自定义View进阶第五式——Canvas之绘制图形/image-20191110153142250.png" alt="image-20191110153142250" style="zoom:50%;" />
+![image-20191112111810046](img/image-20191112111810046.png)
 
 
 
@@ -141,7 +141,9 @@ canvas.drawRoundRect(100,100,800,400,30,30,mPaint);
 
 好吧，让你发现了，**这里圆角矩形的角实际上不是一个正圆的圆弧，而是椭圆的圆弧，这里的两个参数实际上是椭圆的两个半径**，他们看起来个如下图：
 
-<img src="/Users/burt/Downloads/xustudy/自定义View进阶第五式——Canvas之绘制图形/image-20191110161528354.png" alt="image-20191110161528354" style="zoom:50%;" />
+![image-20191112111718869](img/image-20191112111718869.png)
+
+
 
 **红线标注的 rx 与 ry 就是两个半径，也就是相比绘制矩形多出来的那两个参数。**
 
@@ -162,7 +164,7 @@ canvas.drawOval(100,100,800,400,mPaint);
 
 绘制椭圆实际上就是绘制一个矩形的内切图形，原理如下，就不多说了：
 
-<img src="/Users/burt/Downloads/xustudy/自定义View进阶第五式——Canvas之绘制图形/image-20191110161859014.png" alt="image-20191110161859014" style="zoom:50%;" />
+![image-20191112111634933](img/image-20191112111634933.png)
 
 **PS**： 如果你传递进来的是一个长宽相等的矩形(即正方形)，那么绘制出来的实际上就是一个圆。
 
@@ -197,11 +199,15 @@ sweepAngle  // 扫过角度
 useCenter   // 是否使用中心
 ```
 
-<img src="/Users/burt/Downloads/xustudy/自定义View进阶第五式——Canvas之绘制图形/image-20191110162703405.png" alt="image-20191110162703405" style="zoom:50%;" />
+![image-20191112111555837](img/image-20191112111555837.png)
+
+
 
 可以发现使用了中心点之后绘制出来类似于一个扇形，而不使用中心点则是圆弧起始点和结束点之间的连线加上圆弧围成的图形。这样中心点这个参数的作用就很明显了，不必多说想必大家试一下就明白了。 
 
 #### 第四、小栗子炒起来
 
 ##### 4.1、自定义一个饼图
+
+![image-20191112111225183](img/image-20191112111225183.png)
 
