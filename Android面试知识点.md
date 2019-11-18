@@ -210,9 +210,35 @@
 
 ###### 1.2.3, service和intentService的区别
 
+> intentService内部自动起一个HandlerThread线程处理耗时操作
+>
+> IntentService内部是通过 **消息** 的方式来发送给HandlerThread的，然后由Handler中的Looper来处理消息
+>
+> 任务完成之后，自动关闭服务，无需手动管理
+>
+> 多次启动IntentService，通过MessageQueue来顺序执行
+
 ###### 1.2.4, startService和bindService先后次序的问题
 
+> 启动服务的级别要比绑定服务的级别高：因为绑定服务依托于Activity，而启动服务只依赖于服务，如下所述——
+>
+> 先启动再绑定，还是启动
+>
+> 先绑定再启动，就变成启动
+
 ###### 1.2.5, 序列化：Parcelable 和 Serializable
+
+> 区别从两个方面：
+>
+> 实现上：Serializable实现简单，继承接口就可以，Parcelable实现起来比价复杂
+>
+> 效率上：Parcelable是专为Android开发的接口形式，省内存
+>
+> 使用场景：
+>
+> 如果是内存间传递数据，可以使用Parcelable,比较节省内存
+>
+> 如果是存储到磁盘上可以使用Serializable，使用起来简单方便
 
 ###### 1.2.6, Binder机制
 
@@ -220,11 +246,23 @@
 
 ##### 2.1 Handler
 
+
+
+<img src="/Users/burt/Downloads/xustudy/Android面试知识点/image-20191118160009111.png" alt="image-20191118160009111" style="zoom:50%;" />
+
+###### 2.1.1, handler的四大组件
+
+> Handler——looper——messageQueue——message
+
 ##### 2.2 Binder
 
 ##### 2.3 Ui绘制
 
 ##### 2.4 事件分发
+
+##### 2.5 异步消息处理
+
+###### 2.5.1， AsyncTask
 
 #### 第三，基本知识点的细节
 
