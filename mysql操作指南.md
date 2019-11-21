@@ -84,7 +84,7 @@
 
   4. 支持中文，编码格式改为utf8
 
-     ```mysql
+     ```shell
      修改 /etc/my.cnf
      [mysqld]
      collation-server = utf8_unicode_ci
@@ -102,4 +102,84 @@
 
      `ALTER TABLE TABLE_NAME CONVERT TO CHARACTER set utf8`
 
+     ------
+     
+     ### Docker安装Mysql
+     
+     #### 下载镜像
+     
+     `docker pull mariadb:latest`
+     
+     #### 运行镜像
+     
+     `docker run --name mysql -e MYSQL_ROOT_PASSWORD='xxxx'  -v /home/workxu/mysql/lib:/var/lib/mysql   -v /home/workxu/mysql/conf/my.cnf:/etc/mysql/my.cnf -d -i -p 3306:3306 --restart=always  --privileged=true  mariadb:latest`
+     
+     #### 进入容器
+     
+     `docker exec -ti mysql bash`
+     
+     #### 退出容器
+     
+     exit
+     
+     ------
+     
+     ### Centos7安装MariaDB
+     
+     #### 第一步，Yum安装
+     
+     ```shell
+     yum install  -y mariadb-server
+     ```
+     
+     #### 第二步，启动服务，开机自启服务
+     
+     ```shell
+     systemctl start mariadb
+     
+     # 开机自启
+     systemctl enable mariadb
+     ```
+     
+     #### 第三步，初始化配置
+     
+     ```shell
+      # 交互执行初始化密码等操作
+      mysql_secure_installation
+      
+      
+      Set root password? [Y/n] <– 是否设置root用户密码，输入y并回车或直接回车
+      New password: <– 设置root用户的密码
+      Re-enter new password: <– 再输入一次你设置的密码
+     
+      其他配置
+     
+      Remove anonymous users? [Y/n] <– 是否删除匿名用户，回车
+     
+      Disallow root login remotely? [Y/n] <–是否禁止root远程登录,回车,
+     
+      Remove test database and access to it? [Y/n] <– 是否删除test数据库，回车
+     
+      Reload privilege tables now? [Y/n] <– 是否重新加载权限表，回车
+      
+     ```
+     
+     #### 第四步，配置`conf`文件,修改默认的`charset`
+     
+     ```shell
+     # 更改 /etc/my.cnf.d/client.cnf 文件
+     [client] 下加一行配置 default-character-set=utf8
+     
+     # 更改 /etc/my.cnf.d/mysql-clients.cnf 文件
+     [mysql] 下加一行配置 default-character-set=utf8
+     
+     # 更改 /etc/my.cnf.d/server.cnf 配置
+     [mysqld] 下加配置
+     
+     collation-server = utf8_general_ci
+     init-connect='SET NAMES utf8'
+     character-set-server = utf8
+     sql-mode = TRADITIONAL
+     ```
+     
      
