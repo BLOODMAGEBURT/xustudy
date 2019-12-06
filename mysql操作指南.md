@@ -129,7 +129,7 @@
      #### 第一步，Yum安装
      
      ```shell
-     yum install  -y mariadb-server
+     yum install -y mariadb-server
      ```
      
      #### 第二步，启动服务，开机自启服务
