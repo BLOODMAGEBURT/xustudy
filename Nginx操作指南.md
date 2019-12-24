@@ -7,6 +7,9 @@
 
 # 添加epel的yum源
 yum install -y epel-release
+
+# 安装ngin x
+yum install nginx
 ```
 
 #### 配置文件
