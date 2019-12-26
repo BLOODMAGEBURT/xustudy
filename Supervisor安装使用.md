@@ -17,7 +17,7 @@
   vim /etc/supervisord.conf
   
   [program:lightreader]
-  command=/root/anaconda3/bin/gunicorn gunicorn -w 2 -b 0.0.0.0:5000 debug_server:app --reload -t 500 -D --access-logfile log/gunicorn.log
+  command=/home/workspace/LightReader/venv/bin/gunicorn -w 2 -b 0.0.0.0:5000 debug_server:app --reload -t 500 -D --access-logfile log/gunicorn.log
   directory=/home/workspace/LightReader
   user=root
   autostart=true
