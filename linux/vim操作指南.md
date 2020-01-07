@@ -95,7 +95,7 @@ passwd xujianbo
 `vi /etc/vsftpd/chroot_list`
 `内容为ftp用户名,每个用户占一行,如：`
 
-```
+```shell
 xujianbo
 john
 ```
