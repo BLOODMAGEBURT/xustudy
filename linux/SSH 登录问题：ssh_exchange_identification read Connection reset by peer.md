@@ -18,8 +18,9 @@
 
    vim /etc/hosts.allow
 
-![1548662824575](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1548662824575.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200107172932.png)
 
 2. 重启sshd
 
    service sshd restart
+

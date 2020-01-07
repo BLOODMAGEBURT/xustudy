@@ -10,7 +10,7 @@
 
 进入 `.ssh` 文件夹显示如下：
 
-![image-20191206164406718](img/image-20191206164406718.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200107173114.png)
 
 > authorized_keys:存放远程免密登录的公钥,主要通过这个文件记录多台机器的公钥
 >
@@ -30,7 +30,7 @@
 
 #### 第二、免密登录原理
 
-![image-20191206164823434](img/image-20191206164823434.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200107174247.png)
 
 
 
