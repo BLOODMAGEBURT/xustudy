@@ -66,7 +66,7 @@
 
 //a[text()='免费课程']//parent::li
 
-<img src="./img/image-20191219235500582.png" alt="image-20191219235500582" style="zoom:50%;" />
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200107180145.png)
 
 
 

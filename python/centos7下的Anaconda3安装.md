@@ -28,7 +28,7 @@
 
    ​	加入到PATH=$PATH:$HOME/bin 一行之后（注意以冒号分隔），
 
-   ​	![1555039564933](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1555039564933.png)
+   ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200107180349.png)
 
    ​	保存文件并退出，
 
