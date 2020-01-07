@@ -1,6 +1,6 @@
 ## 一份完整的阿里云 Redis 开发规范，值得收藏！
 
-![img](https://mmbiz.qpic.cn/mmbiz_jpg/PgqYrEEtEnrmdZDu3y8gFtkN1INiaCib4uEXh2pogibmAnaHC5MSOh08giadd6Vk2WicGjEibJXvpOmd3QD3SGQ6p1mw/640?wx_fmt=jpeg)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200107175548.png)
 
 
 
