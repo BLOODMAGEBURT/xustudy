@@ -4,7 +4,7 @@
 
   我将Notification的其中一个列名name 修改为 type
 
-  ![1550569934871](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1550569934871.png)
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155010.png)
 
   然后，执行
 
@@ -24,11 +24,11 @@
 
   1.修改migrations/evn.py中的方法， 添加 render_as_batch=True
 
-  ![1550570971545](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1550570971545.png)
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155036.png)
 
   2. 将versions文件夹下刚才新生成的脚本删除
 
-     ![1550571093913](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1550571093913.png)
+     ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155058.png)
 
   3. 重新运行 flask db migrate -m "notification -- name to type"
 

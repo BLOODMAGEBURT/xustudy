@@ -6,7 +6,7 @@
 
 nginx的error.log反应的情况如下：
 
-![nginx](F:\xujianbo\xuStudy\img\nginx.jpg)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155224.png)
 
 
 
@@ -28,7 +28,7 @@ setsebool -P httpd_can_network_connect on
 >
 > The requests by nginx to read the file could be seen as being blocked in the `/var/log/audit/audit.log` file as:
 >
-> ![selinux403](F:\xujianbo\xuStudy\img\selinux403.jpg)
+> ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155245.png)
 
 he quick fix: change the context of the new directory `/home/yuanxin` so that nginx can read it:
 
