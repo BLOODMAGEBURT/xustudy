@@ -4,11 +4,11 @@
 
 - 主动模式
 
-  ![1560916512108](img/1560916512108.png)
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155555.png)
 
 - 被动模式
 
-  ![1560932355174](img/1560932355174.png)
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155617.png)
 
 > 修改工作模式，修改默认端口号
 
@@ -49,39 +49,39 @@
   
   ## 目标
   
-  ![1561024421675](img/1561024421675.png)
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155637.png)
   
   1. 准备工作，建文件设权限
   
-     ![1561024497537](img/1561024497537.png)
+     ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155700.png)
   
   2. 开启用户权限功能 /etc/vsftpd/vsftpd.conf，定义权限文件地址
   
-     ![1561024599022](img/1561024599022.png)
+     ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155727.png)
   
   3. 建立虚拟用户密码文件，生成db格式
   
-     ![1561024707417](img/1561024707417.png)
+     ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155754.png)
   
   4. pam认证
   
-     ![1561024805762](img/1561024805762.png)
+     ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155816.png)
   
   5. 不允许切出家目录，将用户添加到chroot_list中
   
-     ![1561024868290](img/1561024868290.png)
+     ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155844.png)
   
   6. 新建权限子配置文件，用于定义主管员工权限
   
-     1. ![1561024934744](img/1561024934744.png)
+     1. ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155906.png)
   
      2. 主管文件
   
-        ![1561024965988](img/1561024965988.png)
+        ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109155940.png)
   
      3. 员工文件
   
-        ![1561025009672](img/1561025009672.png)
+        ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160013.png)
 
 ```shell
 # 开启虚拟用户登录功能

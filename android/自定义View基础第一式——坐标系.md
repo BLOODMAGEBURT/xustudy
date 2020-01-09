@@ -10,15 +10,15 @@
 
  由于移动设备一般定义屏幕左上角为坐标原点，向右为x轴增大方向，向下为y轴增大方向， 所以在手机屏幕上的坐标系与数学中常见的坐标系是稍微有点差别的，详情如下： 
 
-![image-20191107143709788](img/image-20191107143709788.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160337.png)
 
-![image-20191107143751068](img/image-20191107143751068.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160400.png)
 
  **实际屏幕上的默认坐标系如下：** 
 
 >  PS: 假设其中棕色部分为手机屏幕 
 
-![image-20191107143826084](img/image-20191107143826084.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160429.png)
 
 ##### 第二、View的坐标系是相对于父控件而言的
 
@@ -33,7 +33,7 @@ getRight();     //获取子View右下角距父View左侧的距离
 
 **如下图所示：**
 
-![image-20191107143941332](img/image-20191107143941332.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160454.png)
 
 ##### 第三、MotionEvent的get与getRaw的区别
 
@@ -49,5 +49,5 @@ event.getRawY();
 
 >  PS:其中相同颜色的内容是对应的，其中为了显示方便，蓝色箭头向左稍微偏移了一点. 
 
-![image-20191107144102981](img/image-20191107144102981.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160516.png)
 

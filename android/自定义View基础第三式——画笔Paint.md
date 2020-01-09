@@ -83,7 +83,7 @@ paint.setStrokeWidth(120);
 
  **这条线的宽度是同时向两边进行扩展的，例如绘制一个圆时，将其宽度设置为 120 则会向外扩展 60 ，向内缩进 60，如下图所示。** 
 
-![image-20191107180529766](img/image-20191107180529766.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160753.png)
 
  **因此如果绘制的内容比较靠近视图边缘，使用了比较粗的描边的情况下，一定要注意和边缘保持一定距离(`边距>StrokeWidth/2`) 以保证内容不会被剪裁掉。** 
 
@@ -108,7 +108,7 @@ paint.setColor(0xFF7FC2D8);
 canvas.drawCircle(500, 545, 40, paint);
 ```
 
-![image-20191107181320127](img/image-20191107181320127.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160815.png)
 
 
 
@@ -147,7 +147,7 @@ paint.setStyle(Paint.Style.FILL_AND_STROKE);
 canvas.drawCircle(500, 800, 100, paint);
 ```
 
-![image-20191107181557288](img/image-20191107181557288.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160837.png)
 
 
 
@@ -199,7 +199,7 @@ canvas.drawPoint(pointX, y, paint);
 canvas.drawLine(lineStartX, y, lineStopX, y, paint);
 ```
 
-![image-20191108100253951](img/image-20191108100253951.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160858.png)
 
 
 
@@ -214,7 +214,7 @@ paint.setStrokeJoin(Paint.Join.ROUND);
 
 它有三种样式：
 
-![image-20191108100432322](img/image-20191108100432322.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160923.png)
 
 
 
@@ -254,7 +254,7 @@ CornerPathEffect(radius);
 
 >  一些简单的绘图场景或者签名场景中，一般使用 Path 来保存用户的手指轨迹，通过连续的 lineTo 来记录用户手指划过的路径，但是直接的 LineTo 会让转角看起来非常生硬，而使用 CornerPathEffect 效果则可以快速的让轨迹圆润起来。 
 
-![image-20191108140320821](img/image-20191108140320821.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160951.png)
 
 ```java
 public class CornerPathEffectTestView extends View {
@@ -339,7 +339,7 @@ canvas.drawPath(path_dash, paint);
 canvas.restore();
 ```
 
-![image-20191108151504847](img/image-20191108151504847.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161011.png)
 
  **注意：intervals[] 中是允许设置多组数据的，每两个为一组，第一个表示显示长度，第二个表示隐藏长度。** 
 
@@ -355,13 +355,13 @@ canvas.restore();
 PathDashPathEffect(Path shape, float advance, float phase, PathDashPathEffect.Style style);
 ```
 
-![image-20191108152202536](img/image-20191108152202536.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161035.png)
 
  **PathDashPathEffect.Style** 
 
  PathDashPathEffect 的最后一个参数是 PathDashPathEffect.Style，这个参数用于处理 Path 图形在转角处的样式。 
 
-![image-20191108154452783](img/image-20191108154452783.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161059.png)
 
 
 
@@ -388,7 +388,7 @@ DiscretePathEffect(float segmentLength, float deviation);
 SumPathEffect(PathEffect first, PathEffect second);
 ```
 
-![image-20191108154637226](img/image-20191108154637226.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161122.png)
 
 
 
@@ -401,7 +401,7 @@ SumPathEffect(PathEffect first, PathEffect second);
 ComposePathEffect(PathEffect outerpe, PathEffect innerpe);
 ```
 
-![image-20191108154704273](img/image-20191108154704273.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161139.png)
 
 ##### 2.8、getFillPath()
 
@@ -410,7 +410,7 @@ ComposePathEffect(PathEffect outerpe, PathEffect innerpe);
 paint.getFillPath(Path src, Path dst);
 ```
 
-![image-20191108155341942](img/image-20191108155341942.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161204.png)
 
  **Q: 可是我们拿到预处理后的 Path 有什么作用呢？** 
 
@@ -418,7 +418,7 @@ A: 尽管通常情况下我们用不到，但在一些特殊情况下还是有�
 
 在我前段时间开源的一个库里面，需要实现下面这样的效果，一个弧形的 SeekBbar。
 
-![image-20191108155733884](img/image-20191108155733884.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161222.png)
 
  如上图，是一个非常粗的圆弧，有一个白色的描边，这个白色的描边效果就可以通过 getFillPath 轻松实现。 
 

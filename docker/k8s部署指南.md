@@ -243,7 +243,7 @@
   # 镜像拉取错误
   ```
 
-  ![1564479747980](img/1564479747980.png)
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160242.png)
 
   ```shell
   # 修改kubelet镜像下载地址,改为docker官方镜像

@@ -8,7 +8,7 @@
 
 >  为了兼容性(*偷懒*) 本表格中去除了部分API21(即安卓版本5.0)以上才添加的方法。 
 
-![image-20191112112955215](img/image-20191112112955215.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162607.png)
 
 
 
@@ -32,7 +32,7 @@ Path封装了由直线和曲线（二次、三次贝塞尔曲线）构成的几�
 
  另外路径有开放和封闭的区别 。
 
-![image-20191112113710928](img/image-20191112113710928.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162625.png)
 
 
 
@@ -68,7 +68,7 @@ path.lineTo(200,0);
 canvas.drawPath(path, mPaint);              // 绘制Path
 ```
 
-![image-20191112114431785](img/image-20191112114431785.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162646.png)
 
 *moveTo和setLastPoint:*
 
@@ -96,7 +96,7 @@ path.lineTo(200,0);                         // lineTo
 canvas.drawPath(path, mPaint);              // 绘制Path
 ```
 
-![image-20191112115000498](img/image-20191112115000498.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162715.png)
 
  下面是setLastPoint的示例： 
 
@@ -114,7 +114,7 @@ path.lineTo(200,0);                         // lineTo
 canvas.drawPath(path, mPaint);              // 绘制Path
 ```
 
-![image-20191112115040906](img/image-20191112115040906.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162740.png)
 
 **setLastPoint是重置上一次操作的最后一个点，在执行完第一次的lineTo的时候，最后一个点是A(200,200),而setLastPoint更改最后一个点为C(200,100),所以在实际执行的时候，第一次的lineTo就不是从原点O到A(200,200)的连线了，而变成了从原点O到C(200,100)之间的连线了。**
 

@@ -2,11 +2,11 @@
 
 代码如下：
 
-![1565244164442](img/1565244164442.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160119.png)
 
 运行时报错，`FileNotFoundError: pipenv`
 
-![1565244076951](img/1565244076951.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160136.png)
 
 解决方案：
 
@@ -21,7 +21,7 @@ which pipenv
 # 因此修改代码中pipenv为全路径的，可成功运行
 ```
 
-![1565244473176](img/1565244473176.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109160154.png)
 
 > 另外，报`FileNotFoundError` 的错误，有的有可以通过在`subprocess.Popen()`中配置shell=True 参数来修正
 >

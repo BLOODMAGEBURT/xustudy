@@ -10,7 +10,7 @@
 
  自定义View绘制流程函数调用链(简化版) 
 
-![image-20191108163042408](img/image-20191108163042408.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161304.png)
 
 
 
@@ -106,7 +106,7 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
 **测量模式一共有三种， 被定义在 Android 中的 View 类的一个内部类`View.MeasureSpec`中：**
 
-![image-20191108172123989](img/image-20191108172123989.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109161331.png)
 
  **PS: 实际上关于上面的东西了解即可，在实际运用之中只需要记住有三种模式，用 `MeasureSpec` 的 `getSize`是获取数值， `getMode`是获取模式即可。** 
 
@@ -145,7 +145,7 @@ child.layout(l, t, r, b);
 
 四个参数分别为：
 
-![image-20191108173148816](img/image-20191108173148816.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162134.png)
 
 
 
@@ -172,9 +172,9 @@ protected void onDraw(Canvas canvas) {
 
 >  PS ：实际上`ViewGroup`是View的一个子类。 
 
-![image-20191108173446326](img/image-20191108173446326.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162201.png)
 
 ##### 4.2、自定义View流程
 
-![image-20191108173506164](img/image-20191108173506164.png)
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109162221.png)
 
