@@ -115,7 +115,7 @@ sudo yum remove docker-ce
 sudo rm -rf /var/lib/docker
 ```
 
-#### 4.修改国内源
+#### 4.修改国内源（可选，但建议）
 
 > Docker很多镜像动不动就1G或几百M，官方经常掉线。所以只能换国内源。
 
@@ -152,3 +152,28 @@ vim /etc/docker/daemon.json
 sudo systemctl restart docker
 ```
 
+#### 5.安装docker-compose（可选）
+
+##### 5.1下载
+
+```shell
+sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+```
+
+
+
+##### 5.2赋权限
+
+```shell
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+##### 5.3实验是否正常
+
+```shell
+docker-compose
+
+# 如下显示，即为正常
+```
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109145250.png)
