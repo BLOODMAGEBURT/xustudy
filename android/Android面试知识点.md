@@ -246,9 +246,7 @@
 
 ##### 2.1 Handler
 
-
-
-<img src="/Users/burt/Downloads/xustudy/Android面试知识点/image-20191118160009111.png" alt="image-20191118160009111" style="zoom:50%;" />
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200109163529.png)
 
 ###### 2.1.1, handler的四大组件
 
