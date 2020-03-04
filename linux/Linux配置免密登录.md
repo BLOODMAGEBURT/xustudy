@@ -66,3 +66,22 @@ scp -p ~/.ssh/id_rsa.pub root@192.168.1.135:/root/.ssh/authorized_keys
 # 然后输入 192.168.1.135的密码即可
 ```
 
+#### 第四、配置服务器别名
+
+```shell
+# 新建config文件
+cd ~/.ssh/
+vim config
+
+# 填写服务器配置
+Host tx
+Hostname 140.143.163.99
+Port 22
+User root
+Identityfile ~/.ssh/id_rsa
+
+# 之后登录就可以使用
+ssh tx
+
+```
+
