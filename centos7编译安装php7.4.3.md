@@ -115,10 +115,13 @@ cd /home/www/php-7.4.3/ext/gd
 # 生成configure命令
 /usr/local/php7.4/bin/phpize
 # 配置
-./configure --with-php-config=/usr/local/php7.4/bin/php-config -with-png=/usr/local/png --with-freetype=/usr/local/freetype --with-jpeg=/usr/local/jpeg -with-zlib --with-gd
+./configure --with-php-config=/usr/local/php7.4/bin/php-config --enable-gd-native-ttf --with-png=/usr/local/png --with-freetype=/usr/local/freetype --with-jpeg=/usr/local/jpeg -with-zlib --with-gd
+
+# 如果之前编译过,就clean一下
+make clean 
 
 # 编译
-make
+make  
 # 安装
 make install
 
