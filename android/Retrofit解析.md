@@ -2,6 +2,10 @@
 
 [TOC]
 
+#### 结构
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com//mkdown20200318193404.png)
+
 #### 1.接口是如何实现的
 
 ##### 1.1 接口的实现类从哪里来的
