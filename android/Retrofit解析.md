@@ -10,13 +10,32 @@
 
 ##### 1.1 接口的实现类从哪里来的
 
+通过动态代理生成实现类（Proxy.newProxyInstance(classloader,interfaces [], invocationHandler )）
+
+最终生成代理类的方法是：ProxyGenerator.genarateProxyClass(className, interefaces [], modifiers)
+
+java官方内置的这套方案只针对接口实现动态代理，如果是抽象类则需要采用其他的实现方案。
+
 ##### 1.2 代理的其他实现方案
+
+cglib方案
 
 #### 2.如何处理请求
 
 ##### 2.1 如何解析并配置参数
 
+```java
+// 类型是 concorrentHashMap，是线程安全的
+serviceMethodCache.get(method);
+// 解析注解
+serviceMethod.parseAnnocations(retrofit, method);
+```
+
 ##### 2.2 如何实现自定义类型转换
+
+自定义Converter
+
+Converter.Factory
 
 ##### 2.3 如何动态切换`BaseURL`
 
