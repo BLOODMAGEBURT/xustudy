@@ -27,8 +27,11 @@ cglib方案
 ```java
 // 类型是 concorrentHashMap，是线程安全的
 serviceMethodCache.get(method);
-// 解析注解
-serviceMethod.parseAnnocations(retrofit, method);
+// 如果缓存获取不到就解析注解
+serviceMethod.parseAnnocations(retrofit, method); 
+// 向下调用
+RequestFactory.parseAnnocations(retrofit, method) -> requesetFactory
+RequestFactory 有一个私有方法 - parseParameter
 ```
 
 ##### 2.2 如何实现自定义类型转换
