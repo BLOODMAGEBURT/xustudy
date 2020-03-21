@@ -109,5 +109,7 @@ services:
 ```shell
 # 在当前目录
 docker-compose up
+# 后台启动运行
+docker-compose up -d
 ```
 
