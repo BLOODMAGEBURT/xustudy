@@ -18,6 +18,10 @@
 
 ------
 
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/md/20200409231951.png)
+
+
+
 ##### 配置master节点
 
 - 配置`etcd`
