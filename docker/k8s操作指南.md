@@ -1,6 +1,6 @@
 ### `k8s`操作指南
 
-
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200417175440.png)
 
 #### 1、命令自动补全
 
@@ -71,3 +71,8 @@ docker pull coredns/coredns:1.6.5
 #### 7、服务暴露 (Ingress)
 
 > 如何使得服务在`K8S`集群 外 被访问和使用呢？
+>
+> `Ingress` 实际是就是 `Nginx` + 一段 `go` 的脚本
+>
+> 是 `k8s`  的标准资源之一， 他其实是一组 基于 域名和 `url` 路径，把用户的请求转发至指定 `service`资源的规则
+
