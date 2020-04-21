@@ -10,6 +10,11 @@ yum install -y bash-completion
 source /usr/share/bash-completion/bash_completion
 source <(kubectl completion bash)
 echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+
+# You can also use a shorthand alias for kubectl that also works with completion:
+alias kb=kubectl
+complete -F __start_kubectl kb
 ```
 
 
@@ -33,6 +38,18 @@ kubectl get nodes -o wide
 kubectl get pod xxx -o yaml
 # 获取帮助文档 sevice.metadata的详解
 kubectl explain service.metadata
+
+# Get commands with basic output
+kubectl get services                          # List all services in the namespace
+kubectl get pods --all-namespaces             # List all pods in all namespaces
+kubectl get pods -o wide                      # List all pods in the current namespace, with more details
+kubectl get deployment my-dep                 # List a particular deployment
+kubectl get pods                              # List all pods in the namespace
+kubectl get pod my-pod -o yaml                # Get a pod's YAML
+
+# Describe commands with verbose output
+kubectl describe nodes my-node
+kubectl describe pods my-pod
 
 ```
 
