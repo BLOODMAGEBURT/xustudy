@@ -55,7 +55,7 @@ FirewallD的配置方法主要有三种：
 
 #### 5.常用操作
 
-查看区域信息:
+##### 5.1、查看区域信息:
 
 ```shell
 $ firewall-cmd --get-active-zones
@@ -70,7 +70,7 @@ $ firewall-cmd --zone=public --add-interface=eth0
 $ firewall-cmd --set-default-zone=public
 ```
 
-更新防火墙规则：
+##### 5.2、更新防火墙规则：
 
 ```shell
 #两者的区别就是第一个无需断开连接，就是firewalld特性之一动态添加规则，第二个需要断开连接，类似重启服务
@@ -78,7 +78,7 @@ $ firewall-cmd --reload
 $ firewall-cmd --complete-reload
 ```
 
-打开端口：
+##### 5.3、打开端口：
 
 ```shell
 # 查看所有打开的端口：
@@ -87,13 +87,16 @@ $ firewall-cmd --zone=public --list-ports
 # 加入一个端口到区域：
 $ firewall-cmd --zone=public --add-port=8080/tcp
 
+# 移除一个端口
+$ firewall-cmd --remove-port=3306/tcp # 阻止通过tcp访问3306
+
 # 如果要永久生效
 # 永久生效再加上 --permanent 然后reload防火墙
 $ firewall-cmd --zone=public --add-port=8080/tcp --permanent
 $ firewall-cmd --reload
 ```
 
-打开一个服务：
+##### 5.4、打开一个服务：
 
 其实一个服务对应一个端口，每个服务对应/usr/lib/firewalld/services下面一个xml文件，服务需要在配置文件中添加
 
@@ -109,4 +112,40 @@ firewall-cmd --list-services
 # 查看还有哪些服务可以打开
 firewall-cmd --get-services
 ```
+
+##### 5.5、伪装IP
+
+防火墙可以实现伪装IP的功能，下面的端口转发就会用到这个功能。
+
+```shell
+$ firewall-cmd --query-masquerade # 检查是否允许伪装IP
+$ firewall-cmd --permanent --add-masquerade # 允许防火墙伪装IP
+$ firewall-cmd --permanent --remove-masquerade # 禁止防火墙伪装IP
+$ firewall-cmd --reload # 更新规则
+```
+
+##### 5.6、端口转发
+
+端口转发可以将指定地址访问指定的端口时，将流量转发至指定地址的指定端口。
+
+**转发的目的如果不指定ip的话就默认为本机，如果指定了ip却没指定端口，则默认使用来源端口。**
+
+如果配置好端口转发之后不能用，可以检查下面两个问题：
+
+- 比如我将80端口转发至8080端口，首先检查本地的80端口和目标的8080端口是否开放监听了
+- 其次检查是否允许伪装IP，没允许的话要开启伪装IP
+
+```shell
+# 将80端口的流量转发至8080
+$ firewall-cmd --permanent --add-forward-port=port=80:proto=tcp:toport=8080
+# 将80端口的流量转发至
+$ firewall-cmd --permanent --add-forward-port=port=80:proto=tcp:toaddr=192.168.0.1
+# 将80端口的流量转发至192.168.0.1的8080端口
+$ firewall-cmd --permanent --add-forward-port=port=80:proto=tcp:toaddr=192.168.0.1:toport=8080
+```
+
+端口转发的作用：
+
+- 当我们想把某个端口隐藏起来的时候，就可以在防火墙上阻止那个端口访问，然后再开一个不规则的端口，之后配置防火墙的端口转发，将流量转发过去。
+- 端口转发还可以做流量分发，一个防火墙拖着好多台运行着不同服务的机器，然后用防火墙将不同端口的流量转发至不同机器。
 
