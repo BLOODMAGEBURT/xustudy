@@ -252,3 +252,123 @@ Manage Jenkins - Configure Global Security -
 
 插件管理-下载blue ocean
 
+#### 4、配置流水线
+
+##### 4.1、配置丢弃旧的构建
+
+保持构建的天数 3
+
+保持构建的最大个数 30
+
+##### 4.2、配置参数化构建过程
+
+字符参数： app_name                    **项目名称，例如 dubbo-demo-service**
+
+字符参数： image_name                **镜像名称，例如： app/dubbo-demo-service**
+
+字符参数：git_repo                        **项目git地址，例如： https://gitee.com/stanleywang/dubbo-demo-service.git**
+
+字符参数：git_ver                          **项目的git仓库分支或者版本号commitId**
+
+字符参数：add_tag                       **docker镜像标签的一部分，日期时间戳，例如： 191201_1104**
+
+字符参数：mvn_dir                       **编译项目的目录，默认为项目的根目录**
+
+字符参数：target_dir                    **项目编译完成后，产生的JAR/WAR包所在的目录**
+
+字符参数：mvn_cmd                    **执行编译所用的命令**
+
+选项参数：base_image                **项目使用的docker底包镜像**
+
+选项参数：maven                        **项目使用的maven版本**
+
+##### 4.3、编写流水线脚本
+
+```groovy
+pipeline {
+  agent any
+    stages {
+        stage('pull') { //get code from repo
+            steps {
+                sh "git clone ${params.git_repo} ${params.app_name}/${env.BUILD_NUMBER} && cd ${params.app_name}/${env.BUILD_NUMBER} && git checkout ${params.git_ver}"
+            }
+        }
+        stage('build') { //exec mvn cmd
+            steps {
+                sh "cd ${params.app_name}/${env.BUILD_NUMBER} && /var/jenkins_home/maven-${params.maven}/bin/${params.mvn_cmd}"
+            }
+        }
+        stage('package') { //move jar file to project_dir
+            steps {
+                sh "cd ${params.app_name}/${env.BUILD_NUMBER} && cd ${params.target_dir} && mkdir project_dir && mv *.jar ./project_dir"
+            }
+        }
+        stage('image') { //build image and push to harbor
+            steps {
+                writeFile file: "${params.app_name}/${env.BUILD_NUMBER}/Dockerfile", text: """FROM harbor.od.com/${params.base_image}
+                COPY ${params.target_dir}/project_dir /opt/project_dir"""
+                sh "cd ${params.app_name}/${env.BUILD_NUMBER} && docker build -t harbor.od.com/${params.image_name}:${params.git_ver}_${params.add_tag} . && docker push harbor.od.com/${params.image_name}:${params.git_ver}_${params.add_tag}"
+            }
+        }
+    }
+}
+```
+
+#### 5、配置k8s资源清单
+
+dp.yaml
+
+```yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dubbo-demo-service
+  namespace: app
+  labels:
+    name: dubbo-demo-service
+spec:
+  template:
+    metadata:
+      labels:
+        app: dubbo-demo-service
+        name: dubbo-demo-service
+    spec:
+      containers:
+      - name: dubbo-demo-service
+        image: harbor.od.com/app/dubbo-demo-service:master_20200513_1759
+        ports:
+        - containerPort: 20880
+          protocol: TCP
+        env:
+        - name: JAR_BALL
+          value: dubbo-server.jar
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+    
+```
+
+创建app的ns
+
+```shell
+kubectl create ns app
+```
+
+在app命名空间下，创建secret，用于拉取私有仓库镜像
+
+```shell
+kubectl create secret docker-registry harbor --docker-server=harbor.od.com --docker-username=admin --docker-password=Harbor12345 -n app
+```
+
