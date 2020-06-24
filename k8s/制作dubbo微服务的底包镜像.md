@@ -50,7 +50,7 @@ exec java -jar ${M_OPTS} ${C_OPTS} ${JAR_BALL}
 
 ##### 2、`build`镜像
 
-先在`harbor`中新建一个base仓库
+先在`harbor`中新建一个base公开仓库
 
 执行构建
 
