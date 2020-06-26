@@ -26,8 +26,11 @@ name = MariaDB
 #baseurl = http://yum.mariadb.org/10.0/centos7-amd64
 baseurl = https://mirrors.ustc.edu.cn/mariadb/yum/10.1/centos7-amd64/
 gpgkey=https://mirrors.ustc.edu.cn/mariadb/yum/RPM-GPG-KEY-MariaDB
-gpgcheck= 0
+gpgcheck= 1
 
+
+# 安装gpgkey
+rpm --import https://mirrors.ustc.edu.cn/mariadb/yum/RPM-GPG-KEY-MariaDB
 # 生成缓存
 yum clean all
 yum makecache
@@ -61,7 +64,7 @@ systemctl enable mariadb
 
 # 修改管理员密码
 mysqladmin -u root password
-
+1qaz2wsxxuBoBo
 # 进入mysql
 mysql -uroot -p
 
