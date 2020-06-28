@@ -100,7 +100,7 @@ mysql> show grants for 'apolloconfig'@'10.4.7.%';
 ##### 1.6、更配初始化配置
 
 ```mysql
-mysql> update ApolloConfigDB.ServerConfig set ServerConfig.Value="http://config.od.com/eureka" where ServerConfig.Key="eureka.url";
+mysql> update ApolloConfigDB.ServerConfig set ServerConfig.Value="http://config.od.com/eureka" where ServerConfig.Key="eureka.service.url";
 ```
 
 ##### 1.7、配置config.od.com的域名
