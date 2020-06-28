@@ -240,7 +240,7 @@ docker push harbor.od.com/infra/apollo-configservice:v1.5.1
 
 ##### 2.2、制作资源配置清单
 
-```
+```shell
 mkdir /data/k8s-yaml/apollo-configservice
 ```
 
@@ -362,7 +362,7 @@ spec:
 mkdir /data/dockerfile/apollo-adminservice
 
 # 解压
-unzip -o apollo-configservice-1.5.1-github.zip -d /data/dockerfile/apollo-configservice
+unzip -o apollo-adminservice-1.5.1-github.zip -d /data/dockerfile/apollo-adminservice
 
 # 进入目录
 cd /data/dockerfile/apollo-adminservice/scripts
@@ -469,6 +469,10 @@ docker push harbor.od.com/infra/apollo-adminservice:v1.5.1
 ```
 
 ##### 3.2、制作资源配置清单
+
+```shell
+mkdir /data/k8s-yaml/apollo-adminservice
+```
 
 `cm.yaml`
 
@@ -666,9 +670,17 @@ CMD ["/apollo-portal/scripts/startup.sh"]
 
 打包镜像，推送镜像
 
-```
+```shell
 docker build -t harbor.od.com/infra/apollo-portal:v1.5.1 .
 docker push harbor.od.com/infra/apollo-portal:v1.5.1
+```
+
+
+
+新建文件夹
+
+```
+mkdir /data/k8s-yaml/apollo-portal
 ```
 
 `cm.yaml`
@@ -745,18 +757,7 @@ spec:
 `svc.yaml`
 
 ```yaml
-kind: Service
-apiVersion: v1
-metadata:
-  name: apollo-portal
-  namespace: infra
-spec:
-  ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080
-  selector:
-    app: apollo-portal
+v
 ```
 
 `ingress.yaml`
