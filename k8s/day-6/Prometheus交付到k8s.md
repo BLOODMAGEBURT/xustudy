@@ -1,5 +1,9 @@
 ### Prometheus交付到`k8s`
 
+[TOC]
+
+
+
 #### 1、交付4个 `exporter`
 
 ##### 1.1、`kube-state-metric`
@@ -287,7 +291,7 @@ spec:
           readOnly: true
         - name: var-run
           mountPath: /var/run
-          readOnly: true
+          readOnly: false
         - name: sys
           mountPath: /sys
           readOnly: true
@@ -320,5 +324,784 @@ spec:
       - name: docker
         hostPath:
           path: /var/lib/docker
+```
+
+##### 1.4、`blackbox-exporter`
+
+准备镜像
+
+```
+docker pull prom/blackbox-exporter:v0.15.1
+
+docker tag 81b70b6158be harbor.od.com/public/blackbox-exporter:v0.15.1
+
+docker push harbor.od.com/public/blackbox-exporter:v0.15.1
+```
+
+准备资源配置文件
+
+```shell
+mkdir /data/k8s-yaml/blackbox-exporter
+```
+
+cm.yaml
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: blackbox-exporter
+  name: blackbox-exporter
+  namespace: kube-system
+data:
+  blackbox.yml: |-
+    modules:
+      http_2xx:
+        prober: http
+        timeout: 2s
+        http:
+          valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+          valid_status_codes: [200,301,302]
+          method: GET
+          preferred_ip_protocol: "ip4"
+      tcp_connect: 
+        prober: tcp
+        timeout: 2s
+```
+
+dp.yaml
+
+```yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: blackbox-exporter
+  namespace: kube-system
+  labels:
+    app: blackbox-exporter
+  annotations:
+    deployment.kubernetes.io/revision: 1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  template:
+    metadata:
+      labels:
+        app: blackbox-exporter
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: blackbox-exporter
+          defaultMode: 420
+      containers:
+      - name: blackbox-exporter
+        image: harbor.od.com/public/blackbox-exporter:v0.15.1
+        imagePullPolicy: IfNotPresent
+        args:
+        - --config.file=/etc/blackbox_exporter/blackbox.yml
+        - --log.level=info
+        - --web.listen-address=:9115
+        ports:
+        - name: blackbox-port
+          containerPort: 9115
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 50Mi
+        volumeMounts:
+        - name: config
+          mountPath: /etc/blackbox_exporter
+        readinessProbe:
+          tcpSocket:
+            port: 9115
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+```
+
+svc.yaml
+
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: blackbox-exporter
+  namespace: kube-system
+spec:
+  selector:
+    app: blackbox-exporter
+  ports:
+    - name: blackbox-port
+      protocol: TCP
+      port: 9115
+```
+
+ingress.yaml
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: blackbox-exporter
+  namespace: kube-system
+spec:
+  rules:
+  - host: blackbox.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: blackbox-exporter
+          servicePort: blackbox-port
+```
+
+解析域名
+
+```shell
+# 修改named
+vim /var/named/od.com.zone
+
+# 将 blackbox.od.com 解析到 10
+blackbox           A    10.4.7.10
+
+# 重启named
+systemctl retart named
+
+```
+
+#### 2、安装 `prometheus-server`
+
+准备镜像
+
+```shell
+docker pull prom/prometheus:v2.14.0
+docker tag 7317640d555e harbor.od.com/infra/prometheus:v2.14.0
+docker push harbor.od.com/infra/prometheus:v2.14.0
+```
+
+准备配置文件
+
+```shell
+# nfs持久存储
+mkdir -pv /data/nfs-volume/prometheus/{etc,prom-db}
+
+# 拷贝证书，需要与apiserver通信
+cd /data/nfs-volume/prometheus/etc/
+cp /opt/certs/ca.pem /opt/certs/client.pem /opt/certs/client-key.pem .
+```
+
+prometheus.yml
+
+```yml
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+scrape_configs:
+
+- job_name: 'etcd'
+  tls_config:
+    ca_file: /data/etc/ca.pem
+    cert_file: /data/etc/client.pem
+    key_file: /data/etc/client-key.pem
+  scheme: https
+  static_configs:        # 静态配置
+  - targets:
+    - '10.4.7.12:2379'
+    - '10.4.7.21:2379'
+    - '10.4.7.22:2379'
+
+- job_name: 'kubernetes-apiservers'
+  kubernetes_sd_configs:
+  - role: endpoints
+  scheme: https
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  relabel_configs:
+  - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+    action: keep
+    regex: default;kubernetes;https
+
+- job_name: 'kubernetes-pods'
+  kubernetes_sd_configs:
+  - role: pod
+  relabel_configs:
+  - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+    action: keep
+    regex: true
+  - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+    action: replace
+    target_label: __metrics_path__
+    regex: (.+)
+  - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+    action: replace
+    regex: ([^:]+)(?::\d+)?;(\d+)
+    replacement: $1:$2
+    target_label: __address__
+  - action: labelmap
+    regex: __meta_kubernetes_pod_label_(.+)
+  - source_labels: [__meta_kubernetes_namespace]
+    action: replace
+    target_label: kubernetes_namespace
+  - source_labels: [__meta_kubernetes_pod_name]
+    action: replace
+    target_label: kubernetes_pod_name
+
+- job_name: 'kubernetes-kubelet'
+  kubernetes_sd_configs:
+  - role: node
+  relabel_configs:
+  - action: labelmap
+    regex: __meta_kubernetes_node_label_(.+)
+  - source_labels: [__meta_kubernetes_node_name]
+    regex: (.+)
+    target_label: __address__
+    replacement: ${1}:10255
+
+- job_name: 'kubernetes-cadvisor'
+  kubernetes_sd_configs:
+  - role: node
+  relabel_configs:
+  - action: labelmap
+    regex: __meta_kubernetes_node_label_(.+)
+  - source_labels: [__meta_kubernetes_node_name]
+    regex: (.+)
+    target_label: __address__
+    replacement: ${1}:4194
+- job_name: 'kubernetes-kube-state'
+  kubernetes_sd_configs:
+  - role: pod
+  relabel_configs:
+  - action: labelmap
+    regex: __meta_kubernetes_pod_label_(.+)
+  - source_labels: [__meta_kubernetes_namespace]
+    action: replace
+    target_label: kubernetes_namespace
+  - source_labels: [__meta_kubernetes_pod_name]
+    action: replace
+    target_label: kubernetes_pod_name
+  - source_labels: [__meta_kubernetes_pod_label_grafanak8sapp]
+    regex: .*true.*
+    action: keep
+  - source_labels: ['__meta_kubernetes_pod_label_daemon', '__meta_kubernetes_pod_node_name']
+    regex: 'node-exporter;(.*)'
+    action: replace
+    target_label: nodename
+
+- job_name: 'blackbox_http_pod_probe'
+  metrics_path: /probe
+  kubernetes_sd_configs:
+  - role: pod
+  params:
+    module: [http_2xx]
+  relabel_configs:
+  - source_labels: [__meta_kubernetes_pod_annotation_blackbox_scheme]
+    action: keep
+    regex: http
+  - source_labels: [__address__, __meta_kubernetes_pod_annotation_blackbox_port,  __meta_kubernetes_pod_annotation_blackbox_path]
+    action: replace
+    regex: ([^:]+)(?::\d+)?;(\d+);(.+)
+    replacement: $1:$2$3
+    target_label: __param_target
+  - action: replace
+    target_label: __address__
+    replacement: blackbox-exporter.kube-system:9115
+  - source_labels: [__param_target]
+    target_label: instance
+  - action: labelmap
+    regex: __meta_kubernetes_pod_label_(.+)
+  - source_labels: [__meta_kubernetes_namespace]
+    action: replace
+    target_label: kubernetes_namespace
+  - source_labels: [__meta_kubernetes_pod_name]
+    action: replace
+    target_label: kubernetes_pod_name
+
+- job_name: 'blackbox_tcp_pod_probe'
+  metrics_path: /probe
+  kubernetes_sd_configs:
+  - role: pod
+  params:
+    module: [tcp_connect]
+  relabel_configs:
+  - source_labels: [__meta_kubernetes_pod_annotation_blackbox_scheme]
+    action: keep
+    regex: tcp
+  - source_labels: [__address__, __meta_kubernetes_pod_annotation_blackbox_port]
+    action: replace
+    regex: ([^:]+)(?::\d+)?;(\d+)
+    replacement: $1:$2
+    target_label: __param_target
+  - action: replace
+    target_label: __address__
+    replacement: blackbox-exporter.kube-system:9115
+  - source_labels: [__param_target]
+    target_label: instance
+  - action: labelmap
+    regex: __meta_kubernetes_pod_label_(.+)
+  - source_labels: [__meta_kubernetes_namespace]
+    action: replace
+    target_label: kubernetes_namespace
+  - source_labels: [__meta_kubernetes_pod_name]
+    action: replace
+    target_label: kubernetes_pod_name
+
+- job_name: 'traefik'
+  kubernetes_sd_configs:
+  - role: pod
+  relabel_configs:
+  - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scheme]
+    action: keep
+    regex: traefik
+  - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+    action: replace
+    target_label: __metrics_path__
+    regex: (.+)
+  - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+    action: replace
+    regex: ([^:]+)(?::\d+)?;(\d+)
+    replacement: $1:$2
+    target_label: __address__
+  - action: labelmap
+    regex: __meta_kubernetes_pod_label_(.+)
+  - source_labels: [__meta_kubernetes_namespace]
+    action: replace
+    target_label: kubernetes_namespace
+  - source_labels: [__meta_kubernetes_pod_name]
+    action: replace
+    target_label: kubernetes_pod_name
+```
+
+准备资源配置清单
+
+```shell
+# 资源配置清单
+mkdir /data/k8s-yaml/prometheus
+```
+
+rbac.yaml
+
+```
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/cluster-service: "true"
+  name: prometheus
+  namespace: infra
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/cluster-service: "true"
+  name: prometheus
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - nodes/metrics
+  - services
+  - endpoints
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/cluster-service: "true"
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: infra
+```
+
+dp.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "5"
+  labels:
+    name: prometheus
+  name: prometheus
+  namespace: infra
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 7
+  selector:
+    matchLabels:
+      app: prometheus
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      nodeName: hdss7-21.host.com       # 因为22资源提交的太多
+      containers:
+      - name: prometheus
+        image: harbor.od.com/infra/prometheus:v2.14.0
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/prometheus
+        args:
+        - --config.file=/data/etc/prometheus.yml  # 配置文件
+        - --storage.tsdb.path=/data/prom-db       
+        - --storage.tsdb.min-block-duration=10m   # 只加载10分钟数据到缓存，生产环境可以加大 例：2h 
+        - --storage.tsdb.retention=72h            # tsdb存储多久时间数据，生产环境可以加大 例：100h
+        - --web.enable-lifecycle                  # 后期修改配置，可以curl url重新加载配置
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /data
+          name: data
+        resources:
+          requests:         # 容器启动资源
+            cpu: "1000m"    
+            memory: "1.5Gi"
+          limits:           # 容器最大资源
+            cpu: "2000m"
+            memory: "3Gi"
+      imagePullSecrets:
+      - name: harbor
+      securityContext:
+        runAsUser: 0
+      serviceAccountName: prometheus
+      volumes:
+      - name: data
+        nfs:
+          server: hdss7-200
+          path: /data/nfs-volume/prometheus
+```
+
+svc.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: infra
+spec:
+  ports:
+  - port: 9090
+    protocol: TCP
+    targetPort: 9090
+  selector:
+    app: prometheus
+```
+
+ingress.yaml
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  name: prometheus
+  namespace: infra
+spec:
+  rules:
+  - host: prometheus.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prometheus
+          servicePort: 9090
+```
+
+解析域名
+
+```shell
+# 7-11上修改named
+vim /var/named/od.com.zone
+
+# 将 prometheus.od.com 解析到 10
+prometheus           A    10.4.7.10
+
+# 重启named
+systemctl retart named
+```
+
+#### 3、 `prometheus添加traefik监控`
+
+spec->template->metadata下，添加annotations注释
+
+```shell
+cd /data/k8s-yaml/traefik/
+vim daemonset.yaml 
+```
+
+```yaml
+spec:
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      name: traefik
+      labels:
+        app: traefik
+      annotations:
+        prometheus_io_scheme: "traefik"
+        prometheus_io_path: "/metrics"
+        prometheus_io_port: "8080"
+```
+
+#### 4、dubbo服务接入 `blackbox`存活检查
+
+spec->template->metadata下，添加annotations注释
+
+```shell
+cd /data/k8s-yaml/test/dubbo-demo-service
+vim dp.yaml 
+```
+
+```yaml
+annotations:
+    blackbox_port: "20880"
+    blackbox_scheme: "tcp"
+```
+
+dubbo消费者加入存活检测
+
+spec->template->metadata下，添加annotations注释
+
+```
+cd /data/k8s-yaml/test/dubbo-demo-consumer
+vim dp.yaml
+```
+
+```yaml
+annotations:
+  blackbox_path: "/hello?name=health"
+  blackbox_port: "8080"
+  blackbox_scheme: "http"
+```
+
+#### 5、安装grafana
+
+准备镜像
+
+```shell
+docker pull grafana/grafana:5.4.2
+docker tag 6f18ddf9e552 harbor.od.com/infra/grafana:v5.4.2
+docker push harbor.od.com/infra/grafana:v5.4.2
+```
+
+准备资源配置清单
+
+```shell
+mkdir /data/k8s-yaml/grafana
+cd /data/k8s-yaml/grafana
+mkdir /data/nfs-volume/grafana
+```
+
+rbac.yaml
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/cluster-service: "true"
+  name: grafana
+rules:
+- apiGroups:
+  - "*"
+  resources:
+  - namespaces
+  - deployments
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/cluster-service: "true"
+  name: grafana
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grafana
+subjects:
+- kind: User
+  name: k8s-node
+```
+
+dp.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+    name: grafana
+  name: grafana
+  namespace: infra
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 7
+  selector:
+    matchLabels:
+      name: grafana
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: grafana
+        name: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: harbor.od.com/infra/grafana:v5.4.2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          name: data
+      imagePullSecrets:
+      - name: harbor
+      securityContext:
+        runAsUser: 0
+      volumes:
+      - nfs:
+          server: hdss7-200
+          path: /data/nfs-volume/grafana
+        name: data
+```
+
+svc.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: infra
+spec:
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: grafana
+```
+
+ingress.yaml
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: infra
+spec:
+  rules:
+  - host: grafana.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana
+          servicePort: 3000
+```
+
+解析域名
+
+```shell
+# 7-11上修改named
+vim /var/named/od.com.zone
+
+# 将 grafana.od.com 解析到 10
+grafana     A    10.4.7.10
+
+# 重启named
+systemctl retart named
+```
+
+账号密码
+
+admin:admin123
+
+#### 安装插件
+
+ 安装方法一：
+
+```shell
+# 进入grafana容器，执行以下命令
+grafana-cli plugins install grafana-kubernetes-app
+grafana-cli plugins install grafana-clock-panel
+grafana-cli plugins install grafana-piechart-panel
+grafana-cli plugins install briangann-gauge-panel
+grafana-cli plugins install natel-discrete-panel
+
+# 推出容器，然后重启grafana
+kubectl delete pods xxxx -n infra
+```
+
+安装方法二：
+
+```shell
+# 进入 /data/nfs-volume/grafana/plugins
+# 分别wget这些插件
 ```
 
