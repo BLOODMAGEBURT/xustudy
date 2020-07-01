@@ -923,9 +923,45 @@ annotations:
   blackbox_scheme: "http"
 ```
 
+dubbo服务接入jvm监控
+
+服务提供者
+
+```shell
+cd /data/k8s-yaml/test/dubbo-demo-service
+vim dp.yaml 
+```
+
+spec->template->metadata下，添加annotations注释
+
+```yaml
+annotations:
+  prometheus_io_scrape: "true"
+  prometheus_io_port: "12346"
+  prometheus_io_path: "/"
+```
+
+服务消费者
+
+```shell
+cd /data/k8s-yaml/test/dubbo-demo-consumer
+vim dp.yaml
+```
+
+spec->template->metadata下，添加annotations注释
+
+```yaml
+annotations:
+  prometheus_io_scrape: "true"
+  prometheus_io_port: "12346"
+  prometheus_io_path: "/"
+```
+
+
+
 #### 5、安装grafana
 
-准备镜像
+##### 5.1、准备镜像
 
 ```shell
 docker pull grafana/grafana:5.4.2
@@ -933,7 +969,7 @@ docker tag 6f18ddf9e552 harbor.od.com/infra/grafana:v5.4.2
 docker push harbor.od.com/infra/grafana:v5.4.2
 ```
 
-准备资源配置清单
+##### 5.2、准备资源配置清单
 
 ```shell
 mkdir /data/k8s-yaml/grafana
@@ -1082,7 +1118,7 @@ systemctl retart named
 
 admin:admin123
 
-#### 安装插件
+##### 5.3、安装插件
 
  安装方法一：
 
@@ -1094,7 +1130,7 @@ grafana-cli plugins install grafana-piechart-panel
 grafana-cli plugins install briangann-gauge-panel
 grafana-cli plugins install natel-discrete-panel
 
-# 推出容器，然后重启grafana
+# 退出容器，然后重启grafana安装生效
 kubectl delete pods xxxx -n infra
 ```
 
@@ -1105,3 +1141,18 @@ kubectl delete pods xxxx -n infra
 # 分别wget这些插件
 ```
 
+##### 5.4、添加数据源
+
+添加prometheus
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200701154932.png)
+
+复制证书,save and test
+
+```shell
+cat /opt/certs/ca.pem
+cat /opt/certs/client.pem
+cat /opt/certs/client-key.pem
+```
+
+k8s插件配置
