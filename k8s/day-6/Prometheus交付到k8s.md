@@ -1156,3 +1156,326 @@ cat /opt/certs/client-key.pem
 ```
 
 k8s插件配置
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200701172430.png)
+
+复制证书
+
+```shell
+cat /opt/certs/ca.pem
+cat /opt/certs/client.pem
+cat /opt/certs/client-key.pem
+```
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200701172515.png)
+
+#### 6、安装alertmanager
+
+准备镜像
+
+```shell
+docker pull quay.io/prometheus/alertmanager:v0.14.0
+docker tag 23744b2d645c harbor.od.com/infra/alertmanager:v0.14.0
+docker push harbor.od.com/infra/alertmanager:v0.14.0
+```
+
+准备资源配置清单
+
+```shell
+mkdir /data/k8s-yaml/alertmanager
+
+```
+
+cm.yaml
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: infra
+data:
+  config.yml: |
+    global:
+      resolve_timeout: 5m
+      smtp_from: 'XXXX@qq.com'
+      smtp_smarthost: 'smtp.qq.com:465'
+      smtp_auth_username: 'XXXX@qq.com'
+      smtp_auth_password: 'passwd'
+      smtp_require_tls: false
+      smtp_hello: 'XXXX@qq.com'
+    templates:   
+      - '/etc/alertmanager/*.tmpl'
+    route:
+      group_by: ['alertname', 'cluster']
+      group_wait: 20s     
+      group_interval: 20s 
+      repeat_interval: 12h 
+      receiver: 'email' 
+    receivers:
+    - name: 'email'
+      email_configs:
+      - to: 'xubobovip@gmail.com'   
+        send_resolved: true 
+        html: '{{ template "email.to.html" . }}' 
+        headers: { Subject: " {{ .CommonLabels.instance }} {{ .CommonAnnotations.summary }}" }   
+  email.tmpl: |
+    {{ define "email.to.html" }}
+    {{- if gt (len .Alerts.Firing) 0 -}}
+    {{ range .Alerts }}
+    告警程序: prometheus_alert <br>
+    告警级别: {{ .Labels.severity }} <br>
+    告警类型: {{ .Labels.alertname }} <br>
+    故障主机: {{ .Labels.instance }} <br>
+    告警主题: {{ .Annotations.summary }}  <br>
+    触发时间: {{ .StartsAt.Format "2006-01-02 15:04:05" }} <br>
+    {{ end }}{{ end -}}
+    
+    {{- if gt (len .Alerts.Resolved) 0 -}}
+    {{ range .Alerts }}
+    告警程序: prometheus_alert <br>
+    告警级别: {{ .Labels.severity }} <br>
+    告警类型: {{ .Labels.alertname }} <br>
+    故障主机: {{ .Labels.instance }} <br>
+    告警主题: {{ .Annotations.summary }} <br>
+    触发时间: {{ .StartsAt.Format "2006-01-02 15:04:05" }} <br>
+    恢复时间: {{ .EndsAt.Format "2006-01-02 15:04:05" }} <br>
+    {{ end }}{{ end -}}
+    
+    {{- end }}
+```
+
+dp.yaml
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+      - name: alertmanager
+        image: harbor.od.com/infra/alertmanager:v0.14.0
+        args:
+          - "--config.file=/etc/alertmanager/config.yml"
+          - "--storage.path=/alertmanager"
+        ports:
+        - name: alertmanager
+          containerPort: 9093
+        volumeMounts:
+        - name: alertmanager-cm
+          mountPath: /etc/alertmanager
+      volumes:
+      - name: alertmanager-cm
+        configMap:
+          name: alertmanager-config
+      imagePullSecrets:
+      - name: harbor
+```
+
+svc.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: infra
+spec:
+  selector:
+    app: alertmanager
+  ports:
+    - port: 80
+      targetPort: 9093
+```
+
+报警配置
+
+```shell
+vim /data/nfs-volume/prometheus/etc/rules.yml
+```
+
+rules.yml
+
+```yml
+groups:
+- name: hostStatsAlert
+  rules:
+  - alert: hostCpuUsageAlert
+    expr: sum(avg without (cpu)(irate(node_cpu{mode!='idle'}[5m]))) by (instance) > 0.85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "{{ $labels.instance }} CPU usage above 85% (current value: {{ $value }}%)"
+  - alert: hostMemUsageAlert
+    expr: (node_memory_MemTotal - node_memory_MemAvailable)/node_memory_MemTotal > 0.85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "{{ $labels.instance }} MEM usage above 85% (current value: {{ $value }}%)"
+  - alert: OutOfInodes
+    expr: node_filesystem_free{fstype="overlay",mountpoint ="/"} / node_filesystem_size{fstype="overlay",mountpoint ="/"} * 100 < 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Out of inodes (instance {{ $labels.instance }})"
+      description: "Disk is almost running out of available inodes (< 10% left) (current value: {{ $value }})"
+  - alert: OutOfDiskSpace
+    expr: node_filesystem_free{fstype="overlay",mountpoint ="/rootfs"} / node_filesystem_size{fstype="overlay",mountpoint ="/rootfs"} * 100 < 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Out of disk space (instance {{ $labels.instance }})"
+      description: "Disk is almost full (< 10% left) (current value: {{ $value }})"
+  - alert: UnusualNetworkThroughputIn
+    expr: sum by (instance) (irate(node_network_receive_bytes[2m])) / 1024 / 1024 > 100
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Unusual network throughput in (instance {{ $labels.instance }})"
+      description: "Host network interfaces are probably receiving too much data (> 100 MB/s) (current value: {{ $value }})"
+  - alert: UnusualNetworkThroughputOut
+    expr: sum by (instance) (irate(node_network_transmit_bytes[2m])) / 1024 / 1024 > 100
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Unusual network throughput out (instance {{ $labels.instance }})"
+      description: "Host network interfaces are probably sending too much data (> 100 MB/s) (current value: {{ $value }})"
+  - alert: UnusualDiskReadRate
+    expr: sum by (instance) (irate(node_disk_bytes_read[2m])) / 1024 / 1024 > 50
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Unusual disk read rate (instance {{ $labels.instance }})"
+      description: "Disk is probably reading too much data (> 50 MB/s) (current value: {{ $value }})"
+  - alert: UnusualDiskWriteRate
+    expr: sum by (instance) (irate(node_disk_bytes_written[2m])) / 1024 / 1024 > 50
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Unusual disk write rate (instance {{ $labels.instance }})"
+      description: "Disk is probably writing too much data (> 50 MB/s) (current value: {{ $value }})"
+  - alert: UnusualDiskReadLatency
+    expr: rate(node_disk_read_time_ms[1m]) / rate(node_disk_reads_completed[1m]) > 100
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Unusual disk read latency (instance {{ $labels.instance }})"
+      description: "Disk latency is growing (read operations > 100ms) (current value: {{ $value }})"
+  - alert: UnusualDiskWriteLatency
+    expr: rate(node_disk_write_time_ms[1m]) / rate(node_disk_writes_completedl[1m]) > 100
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Unusual disk write latency (instance {{ $labels.instance }})"
+      description: "Disk latency is growing (write operations > 100ms) (current value: {{ $value }})"
+- name: http_status
+  rules:
+  - alert: ProbeFailed
+    expr: probe_success == 0
+    for: 1m
+    labels:
+      severity: error
+    annotations:
+      summary: "Probe failed (instance {{ $labels.instance }})"
+      description: "Probe failed (current value: {{ $value }})"
+  - alert: StatusCode
+    expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
+    for: 1m
+    labels:
+      severity: error
+    annotations:
+      summary: "Status Code (instance {{ $labels.instance }})"
+      description: "HTTP status code is not 200-399 (current value: {{ $value }})"
+  - alert: SslCertificateWillExpireSoon
+    expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "SSL certificate will expire soon (instance {{ $labels.instance }})"
+      description: "SSL certificate expires in 30 days (current value: {{ $value }})"
+  - alert: SslCertificateHasExpired
+    expr: probe_ssl_earliest_cert_expiry - time()  <= 0
+    for: 5m
+    labels:
+      severity: error
+    annotations:
+      summary: "SSL certificate has expired (instance {{ $labels.instance }})"
+      description: "SSL certificate has expired already (current value: {{ $value }})"
+  - alert: BlackboxSlowPing
+    expr: probe_icmp_duration_seconds > 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Blackbox slow ping (instance {{ $labels.instance }})"
+      description: "Blackbox ping took more than 2s (current value: {{ $value }})"
+  - alert: BlackboxSlowRequests
+    expr: probe_http_duration_seconds > 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Blackbox slow requests (instance {{ $labels.instance }})"
+      description: "Blackbox request took more than 2s (current value: {{ $value }})"
+  - alert: PodCpuUsagePercent
+    expr: sum(sum(label_replace(irate(container_cpu_usage_seconds_total[1m]),"pod","$1","container_label_io_kubernetes_pod_name", "(.*)"))by(pod) / on(pod) group_right kube_pod_container_resource_limits_cpu_cores *100 )by(container,namespace,node,pod,severity) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Pod cpu usage percent has exceeded 80% (current value: {{ $value }}%)"
+```
+
+prometheus添加报警
+
+```shell
+vim /data/nfs-volume/prometheus/etc/prometheus.yml
+```
+
+prometheus.yml
+
+```yml
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager"]
+rule_files:
+- "/data/etc/rules.yml"
+```
+
+刷新配置
+
+```shell
+ curl -X POST http://prometheus.od.com/-/reload
+```
+
+测试报警
+
+把dubbo服务的提供者缩容为0
+
+把dubbo服务的提供者恢复为1
