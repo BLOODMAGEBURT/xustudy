@@ -1,4 +1,4 @@
-### spinnaker交付到k8s
+spinnaker交付到k8s
 
 [TOC]
 
@@ -2846,3 +2846,114 @@ spec:
           servicePort: 80
 ```
 
+#### 10、结合Jenkins构建镜像
+
+新建application
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703105204.png)
+
+新建pipeline
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703105257.png)
+
+![image-20200703105350378](C:\Users\hengh\AppData\Roaming\Typora\typora-user-images\image-20200703105350378.png)
+
+配置Parameters
+
+git_ver
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703105457.png)
+
+add_tag
+
+![image-20200703105544415](C:\Users\hengh\AppData\Roaming\Typora\typora-user-images\image-20200703105544415.png)
+
+app_name
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703105609.png)
+
+image_name
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703105647.png)
+
+配置打包步骤 Add Stage
+
+Type选择Jenkins
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703110244.png)
+
+Master选择Jenkins-admin
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703110406.png)
+
+参数化构建
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703110454.png)
+
+全部保存之后，开始构建
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703110531.png)
+
+填写实际参数
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703110644.png)
+
+静等构建完成即可。
+
+#### 11、使用spinnaker将构建的镜像发布至k8s
+
+添加 Add Stage
+
+类型选择Deploy
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703111146.png)
+
+add ServerGroup
+
+1.Basic Setting
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703111724.png)
+
+2.Deployment
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703111903.png)
+
+3.Load Balancers
+
+
+
+4.Replicas
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703111958.png)
+
+5.Volume Sources
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703112114.png)
+
+6.Advanced Settings
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703112433.png)
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703112525.png)
+
+7.Container
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114201.png)
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114359.png)
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114635.png)
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114721.png)
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114808.png)
+
+**注意：**
+
+将固定值修改为参数
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703115409.png)
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703115154.png)
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703115301.png)
