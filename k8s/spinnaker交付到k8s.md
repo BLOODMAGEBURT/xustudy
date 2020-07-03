@@ -2942,7 +2942,7 @@ add ServerGroup
 
 ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114359.png)
 
-![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114635.png)
+
 
 ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703114721.png)
 
@@ -2957,3 +2957,43 @@ add ServerGroup
 ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703115154.png)
 
 ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703115301.png)
+
+#### 12、配置svc和ingress
+
+配置svc
+
+create new load balancer
+
+Basic Setting
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703141220.png)
+
+Ports
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703141321.png)
+
+Advanced Setting
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703141508.png)
+
+配置Ingress
+
+Create New Firewall
+
+Basic Setting
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703141750.png)
+
+Backend 
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703141840.png)
+
+Rules
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703141911.png)
+
+
+
+然后再配置pipeline的Deployment时选择svc
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200703142152.png)
