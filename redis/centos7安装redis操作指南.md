@@ -4,7 +4,7 @@
 >
 > 先添加仓库 yum install epel-release
 >
-> 再升级yum ,运行 yum update，再次尝试就可以了
+> 再次尝试就可以了
 
 - 安装redis
 
