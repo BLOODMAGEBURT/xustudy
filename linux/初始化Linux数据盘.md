@@ -130,3 +130,34 @@ UUID=1851e23f-1c57-40ab-86bb-5fc5fc606ffa /mnt/sdc      ext4 defaults     0   2
 
 # 保存，退出即可
 ```
+
+#### 15、磁盘管理常用命令
+
+```shell
+# 列出系统上的所有磁盘列表，及关系
+lsblk
+# lsblk 可以看成“ list block device ”的缩写，就是列出所有储存设备的意思！这个工具软件真的很好用喔！来瞧一瞧！
+```
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200814101422.png)
+
+```shell
+# 查看磁盘id
+blkid /dev/sdb1
+```
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200814101551.png)
+
+```shell
+# 查看磁盘详细信息
+fdisk -l 
+```
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200814102337.png)
+
+```shell
+# 查看磁盘挂载情况
+df -TH
+```
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200814102522.png)
