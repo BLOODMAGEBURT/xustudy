@@ -6,7 +6,7 @@ Dockerfile
 
 ```dockerfile
 FROM php:7.4-fpm
-RUN apt-get update && apt-get install -y \
+RUN usermod -u 1000 www-data && apt-get update && apt-get install -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libpng-dev \
@@ -30,7 +30,7 @@ docker run -d --name php-fpm-xu xubobo/php-fpm:7.4
 
 ```
 docker cp c999025a6624:/usr/local/etc/php-fpm.d/www.conf .
-/usr/local/etc/php/php.ini-production php.ini
+docker cp c999025a6624:/usr/local/etc/php/php.ini-production php.ini
 ```
 
 重新启动容器
