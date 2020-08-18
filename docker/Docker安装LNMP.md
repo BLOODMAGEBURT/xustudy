@@ -50,7 +50,7 @@ xubobo/php-fpm:7.4
 >
 > 比如：file not found "Primary script unknown" while reading response header from upstream"
 
-> 另外这里使用了 PHP 官方的包，采用了7.2.12版本，各版本的 Tags 可以在[官方Docker Hub页面](https://hub.docker.com/_/php/)中查询。
+> 另外这里使用了 PHP 官方的包，采用了7.4版本，各版本的 Tags 可以在[官方Docker Hub页面](https://hub.docker.com/_/php/)中查询。
 
 安装redis扩展
 
