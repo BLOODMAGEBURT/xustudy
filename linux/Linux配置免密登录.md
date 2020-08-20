@@ -38,7 +38,7 @@
 
 ##### 3.1、通过ssh-copy-id的方式
 
-> 命令： `ssh-copy-id -i ~/.ssh/id_rsa.pub`
+> 命令： `ssh-copy-id -i ~/.ssh/id_rsa.pub 192.168.1.135` 
 >
 > 或者： `ssh-copy-id  root@192.168.1.135`
 
