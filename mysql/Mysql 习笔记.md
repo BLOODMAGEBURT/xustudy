@@ -1,4 +1,4 @@
-### `Mysql` 学习笔记
+### `Mysql`学习笔记
 
 [TOC]
 
@@ -196,4 +196,127 @@ select e.ename, e2.ename as leader from emp e left join emp e2 on e.mgr = e2.emp
 # 找出哪个部门没有员工，要求显示部门名称
 
 ```
+
+#### 6、子查询
+
+- where嵌套子查询
+- from嵌套子查询
+- select嵌套子查询
+
+#### 7、Union
+
+可以将查询结果集相加
+
+~~~mysql
+# 找出工作岗位是SALESMAN和MANAGER的员工？
+select ename, job from emp where job='MANAGER' or job='SALESMAN';
+``` 还有第二种方式 ```
+select ename, job from emp where job in ('MANAGER', 'SALESMAN');
+``` 第三种方式，使用union ```
+select ename, job from emp where job='MANAGER' 
+union 
+select ename, job from emp where job='SALESMAN';
+
+~~~
+
+#### 8、视图（View），了解即可
+
+> 以不同的角度，看待同一张表的数据, 可以看作是一个虚拟表
+>
+> 只能以`DQL`语句创建视图，也即select语句
+>
+> 视图的作用，就是隐藏表的实现细节
+
+创建视图、删除视图
+
+```mysql
+create view myview as select empno, ename from emp;
+# 删除
+drop view myview;
+```
+
+对视图进行增删改查，会影响到原表数据
+
+```mysql
+# 显示视图,因为视图也是一张表，只不过是一张特殊表
+show table status where comment='view';
+# 根据视图查询
+select * from myview;
+# 根据视图修改
+update myvew set ename = 'hello world' where empno='6379';
+# 根据视图删除
+delete from myview where empno='45';
+```
+
+视图的具体作用
+
+保密级别较高的系统，对外只提供视图供程序员操作
+
+```mysql
+# 隐藏表的实现细节
+create view myview2 as select ename a, deptno b, sal c from emp;
+```
+
+#### 9、设计三范式
+
+> 三范式的目的 就是为了 减少 数据的冗余。
+>
+> 实际开发中，以满足用户的 需求为主，有的时候会拿冗余换取执行速度。
+
+- 每张表都要有主键
+
+- 非主键字段对主键 不能 **部分** 依赖
+
+  *多对多 三张表，关系表两个外键*
+
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200821113249.png)
+
+- 非主键字段对主键 不能 **传递** 依赖
+
+  *一对多 两张表，多的一方加外键*
+
+  ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200821113416.png)
+
+#### 10、一对一表设计方案
+
+1. 第一种：主键共享
+
+   ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200821112946.png)
+
+2. 第二种：外键唯一
+
+   ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/20200821113041.png)
+
+#### 11、索引
+
+##### 11.1、什么是索引？有什么用？
+
+索引就相当于是一本书的目录，通过目录可以快速找到对应的资源
+
+查询一张表的时候有两种检索方式：
+
+- 全表扫描
+- 根据索引扫描
+
+索引为什么能提高检索的效率，最根本的原因就是缩小了扫描的范围。
+
+~~~mysql
+# 添加索引，其实是给 某一个字段 或者 某些字段 添加索引
+``` 当ename没有添加索引的时候，会进行全表扫描，扫描ename字段中所有的值```
+``` 当ename上添加索引的时候，会根据索引扫描，快速定位```
+select ename,sal from emp where ename = 'sara';
+
+~~~
+
+索引也需要数据库进行维护，所以不能乱加
+
+
+
+##### 11.2、怎么创建索引对象?怎么删除索引对象？
+
+##### 11.3、什么时候考虑给字段加索引？
+
+- 数据量庞大
+- 改字段很少进行`DML`操作
+- 该字段经常出现在where子句中
 
