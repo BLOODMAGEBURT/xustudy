@@ -14,7 +14,11 @@ public Constructor<T> getConstructor(Class<?>... parameterTypes)
 多个参数可以使用 “，”分隔，也可以使用数组。
 
 ```java
-clazz.getConstructor(new Class[]{
-            Context.class, AttributeSet.class});
+Class<?>[] mConstructorSignature = new Class[]{Context.class, AttributeSet.class};
+
+Constructor<? extends View> constructor = clazz.getConstructor(mConstructorSignature);
+
+// 使用
+constructor.newInstance(context, attrs);
 ```
 
