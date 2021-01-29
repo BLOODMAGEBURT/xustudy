@@ -39,7 +39,7 @@ date
 #创建crontab任务
 crontab -e
 #添加定时任务, 每20分钟同步一次
-*/20 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1
+*/20 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1 &
 #重新加载crontab
 systemctl reload crond.service
 ```
