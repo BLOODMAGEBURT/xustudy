@@ -1,5 +1,9 @@
 ### Handler机制
 
+[TOC]
+
+
+
 #### 1.handler构造函数初始化mLooper和mQueue
 
 ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/md/20210403215203.png)
@@ -77,3 +81,30 @@ new Thread(new Runnable() {
 		}).start();
 ```
 
+#### 5.常见面试题
+
+##### 5.1、子线程中维护的Looper,消息队列无消息时的处理方案是什么？有什么用？主线程能退出吗？
+
+线程睡眠(nativePollOnce())与唤醒机制
+
+Looper.quit();
+
+退出时唤醒线程（nativeWake()）继续循环，当检测到需要退出时，next()返回null 跳出next()循环
+
+当queue.next()返回null时，loop()循环判断 msg == null 也跳出循环，loop()执行完毕。
+
+
+
+主线程的Looper不能退出，调用Looper.quit()时会报异常
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/md/20210404130455.png)
+
+在ActivityThread中，4大组件都依赖主线程的Handler
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/md/20210404131041.png)
+
+##### 5.2、应该怎么创建Message?
+
+
+
+##### 5.3、Looper死循环为什么不会导致应用卡死？
