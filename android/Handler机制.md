@@ -33,3 +33,47 @@ messageQueue是一个**链表**实现的队列，入队时 根据message的（�
 queue.next()也是无限循环
 
 ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/md/20210403221011.png)
+
+#### 4.子线程中使用handler
+
+##### 4.1、先调用Looper.prepare()，设置looper
+
+![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/md/20210404104230.png)
+
+##### 4.2、使用刚才的looper对象，创建handler
+
+```java
+new Thread(new Runnable() {
+			public void run() {
+				Looper.prepare();  // 此处获取到当前线程的Looper，并且prepare()
+				Handler handler = new Handler(){
+					@Override
+					public void handleMessage(Message msg) {
+						Toast.makeText(getApplicationContext(), "handler msg", Toast.LENGTH_LONG).show();
+					}
+				};
+				handler.sendEmptyMessage(1);
+				
+			};
+		}).start();
+```
+
+##### 4.3、启动Looper
+
+```java
+new Thread(new Runnable() {
+			public void run() {
+				Looper.prepare();
+				Handler handler = new Handler(){
+					@Override
+					public void handleMessage(Message msg) {
+						Toast.makeText(getApplicationContext(), "handler msg", Toast.LENGTH_LONG).show();
+					}
+				};
+				handler.sendEmptyMessage(1);
+        // 启动Looper
+				Looper.loop();
+			};
+		}).start();
+```
+
