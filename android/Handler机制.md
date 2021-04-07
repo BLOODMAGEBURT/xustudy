@@ -18,7 +18,7 @@ sThreadLocal是Looper类的静态变量，直接初始化的
 
 mQueue是MessageQueue是在Looper构造函数中初始化的
 
-messageQueue是一个**链表**实现的队列，入队时 根据message的（当前时间+delay时间）**排序**
+messageQueue是一个**链表**实现的队列，msg入队时 根据msg的（当前时间+delay时间）**排序**
 
 ![](https://mkdown-1256191338.cos.ap-beijing.myqcloud.com/md/20210403220118.png)
 
